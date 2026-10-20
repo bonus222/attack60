@@ -1,0 +1,18 @@
+{
+  "name": "Attack60 · 网络攻击与逆向 60 天",
+  "short_name": "Attack60",
+  "description": "零基础到中小企业授权渗透与逆向 triage 的 60 天训练计划：每日任务、验收标准、一手资料、自测与打卡记录。",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#070a0e",
+  "theme_color": "#070a0e",
+  "lang": "zh-CN",
+  "categories": ["education", "security"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

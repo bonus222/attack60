@@ -1,0 +1,1873 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Attack60 · 网络攻击与逆向 60 天打卡</title>
+<meta name="description" content="零基础到中小企业授权渗透与逆向 triage 的 60 天训练计划：每日任务、验收标准、一手资料、自测与打卡记录。">
+<meta name="theme-color" content="#070a0e">
+<meta name="color-scheme" content="dark">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Attack60">
+<style>
+:root {
+  --bg: #070a0e;
+  --bg2: #0b1118;
+  --panel: #0f1620;
+  --panel2: #141d28;
+  --line: #1e2b39;
+  --line2: #2a3a4c;
+  --text: #e8f0f8;
+  --dim: #8fa0b3;
+  --dim2: #63748a;
+  --lime: #a3e635;
+  --cyan: #22d3ee;
+  --amber: #f59e0b;
+  --pink: #f472b6;
+  --blue: #38bdf8;
+  --danger: #f87171;
+  --radius: 16px;
+  --shadow: 0 10px 30px rgba(0, 0, 0, .35);
+}
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background:
+    radial-gradient(900px 420px at 15% -10%, rgba(163, 230, 53, .09), transparent 60%),
+    radial-gradient(700px 380px at 100% 0%, rgba(34, 211, 238, .08), transparent 60%),
+    var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100%;
+}
+
+body { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+
+h1, h2, h3, h4 { margin: 0; line-height: 1.3; font-weight: 700; }
+p { margin: 0; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+button { font: inherit; color: inherit; border: none; background: none; cursor: pointer; }
+input, textarea, select { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky; top: 0; z-index: 40;
+  background: linear-gradient(180deg, rgba(7, 10, 14, .97) 60%, rgba(7, 10, 14, .82));
+  backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(30, 43, 57, .6);
+}
+.topbar-inner {
+  display: flex; align-items: center; gap: 10px;
+  max-width: 780px; margin: 0 auto; padding: 12px 16px;
+}
+.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; min-width: 0; }
+.brand img { width: 34px; height: 34px; border-radius: 9px; }
+.brand h1 { font-size: 16px; letter-spacing: .3px; }
+.brand p { font-size: 11px; color: var(--dim2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.icon-btn {
+  width: 38px; height: 38px; display: grid; place-items: center;
+  border-radius: 11px; border: 1px solid var(--line); background: var(--panel);
+  color: var(--dim); flex: none;
+}
+.icon-btn:active { transform: scale(.95); }
+.icon-btn svg { width: 18px; height: 18px; }
+
+.searchbar {
+  position: sticky; top: 62px; z-index: 39;
+  background: rgba(7, 10, 14, .97); backdrop-filter: blur(14px);
+}
+.searchbar-inner { max-width: 780px; margin: 0 auto; padding: 0 16px 10px; }
+.searchbar input {
+  width: 100%; padding: 12px 14px; border-radius: 12px;
+  background: var(--panel); border: 1px solid var(--line2); outline: none;
+}
+.searchbar input:focus { border-color: var(--lime); }
+.search-results { max-height: 55vh; overflow: auto; margin-top: 8px; }
+.sr-item {
+  display: block; width: 100%; text-align: left; padding: 10px 12px;
+  border-radius: 10px; border: 1px solid transparent;
+}
+.sr-item:hover, .sr-item:focus { background: var(--panel); border-color: var(--line); }
+.sr-item b { color: var(--lime); font-weight: 600; }
+.sr-item small { display: block; color: var(--dim2); font-size: 12px; }
+
+/* ---------- layout ---------- */
+.app { max-width: 780px; margin: 0 auto; padding: 16px 16px 24px; }
+.view { display: none; animation: fade .18s ease; }
+.view.active { display: block; }
+@keyframes fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+.card {
+  background: linear-gradient(180deg, var(--panel), #0d141d);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+.card > h3 { font-size: 14px; color: var(--dim); letter-spacing: .4px; margin-bottom: 10px; font-weight: 600; }
+.card-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+.card-head h3 { font-size: 14px; color: var(--dim); font-weight: 600; letter-spacing: .4px; }
+.card-head span { font-size: 12px; color: var(--dim2); font-variant-numeric: tabular-nums; }
+
+/* ---------- hero ---------- */
+.hero { position: relative; overflow: hidden; }
+.hero::after {
+  content: ""; position: absolute; inset: auto -40% -60% auto; width: 320px; height: 320px;
+  background: radial-gradient(circle, rgba(163, 230, 53, .12), transparent 65%);
+  pointer-events: none;
+}
+.hero-top { display: flex; gap: 14px; align-items: flex-start; justify-content: space-between; }
+.eyebrow { font-size: 12px; color: var(--dim2); letter-spacing: .6px; margin-bottom: 6px; }
+.hero h2 { font-size: 21px; margin-bottom: 10px; letter-spacing: .2px; }
+.chip-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 3px 9px; border-radius: 999px; font-size: 11.5px;
+  color: var(--c, var(--lime));
+  border: 1px solid rgba(163, 230, 53, .38);
+  background: rgba(163, 230, 53, .1);
+  border: 1px solid color-mix(in srgb, var(--c, var(--lime)) 40%, transparent);
+  background: color-mix(in srgb, var(--c, var(--lime)) 12%, transparent);
+  white-space: nowrap;
+}
+.chip.ghost { --c: var(--dim2); border-color: var(--line2); background: rgba(255, 255, 255, .02); }
+.focus {
+  margin-top: 14px; padding-left: 11px; border-left: 2px solid var(--lime);
+  color: #c9d6e4; font-size: 14px;
+}
+
+/* progress ring */
+.ring { position: relative; width: 66px; height: 66px; flex: none; }
+.ring svg { transform: rotate(-90deg); width: 66px; height: 66px; }
+.ring circle { fill: none; stroke-width: 5; }
+.ring .bg { stroke: #1a2634; }
+.ring .fg { stroke: var(--lime); stroke-linecap: round; transition: stroke-dashoffset .4s; }
+.ring span {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums;
+}
+
+/* ---------- tasks ---------- */
+.tasks { list-style: none; margin: 0; padding: 0; }
+.task {
+  display: flex; gap: 11px; align-items: flex-start;
+  padding: 11px 0; border-bottom: 1px dashed rgba(42, 58, 76, .55);
+}
+.task:last-child { border-bottom: 0; padding-bottom: 2px; }
+.tick {
+  flex: none; width: 22px; height: 22px; margin-top: 1px;
+  border-radius: 7px; border: 1.5px solid var(--line2);
+  display: grid; place-items: center; color: transparent; transition: .15s;
+}
+.tick svg { width: 13px; height: 13px; }
+.task.done .tick { background: var(--lime); border-color: var(--lime); color: #0a0f14; }
+.task.done .ttext { color: var(--dim2); text-decoration: line-through; text-decoration-color: rgba(143, 160, 179, .5); }
+.ttext { font-size: 14.5px; line-height: 1.55; }
+
+/* ---------- resources ---------- */
+.res-links { display: flex; flex-direction: column; gap: 8px; }
+.res-link {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 11px;
+  background: var(--panel2); border: 1px solid var(--line);
+}
+.res-link:hover { border-color: var(--line2); text-decoration: none; }
+.res-link .rname { flex: 1; min-width: 0; font-size: 14px; }
+.res-link .rbadge { font-size: 10.5px; color: var(--dim2); border: 1px solid var(--line2); padding: 1px 7px; border-radius: 999px; flex: none; }
+.res-link small { display: block; color: var(--dim2); font-size: 11.5px; margin-top: 2px; }
+
+/* ---------- accept / note ---------- */
+.accept { border-color: rgba(163, 230, 53, .28); background: linear-gradient(180deg, rgba(163, 230, 53, .06), #0d141d); }
+.accept h3 { color: var(--lime); }
+.accept p { font-size: 14px; color: #d3e0ec; }
+textarea.note {
+  width: 100%; min-height: 96px; resize: vertical;
+  background: #0a1017; border: 1px solid var(--line); border-radius: 11px;
+  padding: 11px 12px; outline: none; font-size: 14px; line-height: 1.6;
+}
+textarea.note:focus { border-color: var(--lime); }
+
+/* ---------- check-in ---------- */
+.checkin-row { display: flex; align-items: stretch; gap: 10px; }
+.checkin-row .mins {
+  display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 13px; background: var(--panel2);
+  font-size: 12px; color: var(--dim2); flex: none;
+}
+.checkin-row .mins input {
+  width: 58px; background: none; border: none; outline: none;
+  font-size: 15px; color: var(--text); text-align: right; font-variant-numeric: tabular-nums;
+}
+.btn {
+  flex: 1; padding: 14px 18px; border-radius: 13px;
+  background: var(--lime); color: #0a0f14; font-weight: 700; font-size: 15px;
+  border: 1px solid var(--lime);
+}
+.btn:active { transform: scale(.99); }
+.btn.ghost { background: var(--panel2); color: var(--text); border-color: var(--line2); font-weight: 600; }
+.btn.danger { background: var(--panel2); color: var(--danger); border-color: rgba(248, 113, 113, .4); font-weight: 600; }
+.btn.small { flex: none; padding: 8px 12px; font-size: 12.5px; border-radius: 10px; font-weight: 600; }
+.checked-badge {
+  display: flex; align-items: center; gap: 10px; padding: 12px 14px;
+  border-radius: 13px; background: rgba(163, 230, 53, .08);
+  border: 1px solid rgba(163, 230, 53, .3); font-size: 13.5px;
+}
+.checked-badge b { color: var(--lime); }
+
+/* ---------- heatmap ---------- */
+.heat-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+.heat-head h3 { font-size: 14px; color: var(--dim); font-weight: 600; }
+.heat-head span { font-size: 11.5px; color: var(--dim2); }
+.heat {
+  display: grid; grid-template-rows: repeat(7, 11px);
+  grid-auto-flow: column; grid-auto-columns: 11px; gap: 4px;
+  overflow-x: auto; padding-bottom: 4px;
+}
+.heat i { width: 11px; height: 11px; border-radius: 3px; background: #131c26; display: block; }
+.heat i[data-v="1"] { background: rgba(163, 230, 53, .28); }
+.heat i[data-v="2"] { background: rgba(163, 230, 53, .55); }
+.heat i[data-v="3"] { background: rgba(163, 230, 53, .8); }
+.heat i[data-v="4"] { background: var(--lime); }
+.heat .today { outline: 1px solid var(--dim2); outline-offset: 1px; }
+
+/* ---------- plan ---------- */
+.week { padding: 0; overflow: hidden; }
+.week-head {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; text-align: left;
+}
+.week-head .wnum {
+  flex: none; width: 30px; height: 30px; border-radius: 9px;
+  display: grid; place-items: center; font-size: 12.5px; font-weight: 700;
+  background: var(--panel2); border: 1px solid var(--line2); color: var(--dim);
+}
+.week-head .wtxt { flex: 1; min-width: 0; }
+.week-head .wtxt b { display: block; font-size: 14.5px; font-weight: 600; }
+.week-head .wtxt small { color: var(--dim2); font-size: 11.5px; }
+.week-head .wstat { font-size: 11.5px; color: var(--dim2); font-variant-numeric: tabular-nums; flex: none; }
+.week-body { display: none; padding: 0 16px 12px; }
+.week.open .week-body { display: block; }
+.week-goal { font-size: 12.5px; color: var(--dim); padding: 0 0 10px; border-bottom: 1px solid var(--line); margin-bottom: 6px; }
+.day-row {
+  width: 100%; display: flex; align-items: center; gap: 10px;
+  padding: 9px 6px; border-radius: 9px; text-align: left;
+}
+.day-row:hover { background: var(--panel2); }
+.day-row .dnum { font-size: 11px; color: var(--dim2); width: 20px; font-variant-numeric: tabular-nums; flex: none; }
+.day-row .dt { flex: 1; font-size: 13.5px; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.day-row .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--line2); flex: none; }
+.day-row .dot.done { background: var(--lime); box-shadow: 0 0 8px rgba(163, 230, 53, .6); }
+.day-row .dot.part { background: var(--amber); }
+
+/* ---------- tabs ---------- */
+.tabbar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 50;
+  background: rgba(10, 15, 21, .97); backdrop-filter: blur(16px);
+  border-top: 1px solid var(--line);
+}
+.tabbar-inner {
+  display: flex; justify-content: space-around;
+  max-width: 780px; margin: 0 auto;
+  padding: 8px 6px calc(8px + env(safe-area-inset-bottom));
+}
+.tab {
+  flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  padding: 4px 0; color: var(--dim2); font-size: 10.5px; border-radius: 10px;
+}
+.tab svg { width: 21px; height: 21px; }
+.tab.active { color: var(--lime); }
+.tab:active { transform: scale(.96); }
+
+/* ---------- quiz ---------- */
+.quiz-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+.quiz-top .qbar { flex: 1; height: 5px; border-radius: 99px; background: #16202b; margin-left: 12px; overflow: hidden; }
+.quiz-top .qbar i { display: block; height: 100%; background: var(--lime); transition: width .25s; }
+.qtext { font-size: 16.5px; font-weight: 600; line-height: 1.5; margin-bottom: 14px; }
+.opts { display: flex; flex-direction: column; gap: 9px; }
+.opt {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 13px 14px; border-radius: 12px; text-align: left;
+  background: var(--panel2); border: 1px solid var(--line); font-size: 14px;
+}
+.opt .k {
+  flex: none; width: 20px; height: 20px; border-radius: 6px; display: grid; place-items: center;
+  font-size: 11px; color: var(--dim2); border: 1px solid var(--line2); margin-top: 1px;
+}
+.opt.correct { border-color: rgba(163, 230, 53, .6); background: rgba(163, 230, 53, .09); }
+.opt.correct .k { background: var(--lime); color: #0a0f14; border-color: var(--lime); }
+.opt.wrong { border-color: rgba(248, 113, 113, .55); background: rgba(248, 113, 113, .08); }
+.opt.wrong .k { background: rgba(248, 113, 113, .2); color: var(--danger); border-color: rgba(248, 113, 113, .5); }
+.opt:disabled { cursor: default; }
+.explain {
+  margin-top: 14px; padding: 12px 13px; border-radius: 11px;
+  background: #0a1017; border-left: 2px solid var(--cyan);
+  font-size: 13.5px; color: #c3d2e0;
+}
+.quiz-result { text-align: center; padding: 8px 0 4px; }
+.quiz-result .big { font-size: 42px; font-weight: 800; color: var(--lime); line-height: 1.1; }
+.quiz-result .sub { color: var(--dim); font-size: 13px; margin: 6px 0 16px; }
+.wrong-list { text-align: left; margin-top: 10px; }
+.wrong-list li { font-size: 13px; color: var(--dim); margin-bottom: 10px; }
+.wrong-list li b { color: var(--text); font-weight: 600; display: block; }
+.wrong-list li span { color: var(--lime); }
+
+/* ---------- misc ---------- */
+.seg { display: flex; gap: 6px; flex-wrap: wrap; }
+.seg button {
+  padding: 8px 13px; border-radius: 10px; font-size: 12.5px;
+  border: 1px solid var(--line2); background: var(--panel2); color: var(--dim);
+}
+.seg button.on { background: rgba(163, 230, 53, .12); border-color: rgba(163, 230, 53, .5); color: var(--lime); }
+
+.searchrow { display: flex; gap: 8px; }
+.searchrow input {
+  flex: 1; padding: 11px 13px; border-radius: 11px; outline: none;
+  background: #0a1017; border: 1px solid var(--line);
+}
+.searchrow input:focus { border-color: var(--lime); }
+.engines { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.engines a {
+  padding: 7px 12px; border-radius: 9px; font-size: 12.5px;
+  border: 1px solid var(--line2); color: var(--dim); background: var(--panel2);
+}
+.engines a:hover { color: var(--lime); border-color: rgba(163, 230, 53, .5); text-decoration: none; }
+.quick { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 10px; }
+.quick button {
+  padding: 6px 10px; border-radius: 8px; font-size: 11.5px;
+  border: 1px dashed var(--line2); color: var(--dim2);
+}
+
+.rubric-item { padding: 12px 0; border-bottom: 1px dashed rgba(42, 58, 76, .6); }
+.rubric-item:last-child { border-bottom: 0; }
+.rubric-item p { font-size: 13.5px; margin-bottom: 8px; }
+.rubric-item .seg button { padding: 5px 12px; font-size: 12px; }
+
+.dir {
+  padding: 14px; border-radius: 13px; border: 1px solid var(--line);
+  background: var(--panel2); margin-bottom: 10px;
+}
+.dir.reco { border-color: rgba(163, 230, 53, .5); background: linear-gradient(180deg, rgba(163, 230, 53, .07), var(--panel2)); }
+.dir h4 { font-size: 14.5px; margin-bottom: 4px; display: flex; align-items: center; gap: 8px; }
+.dir .tag { font-size: 10px; color: var(--lime); border: 1px solid rgba(163, 230, 53, .4); padding: 1px 7px; border-radius: 99px; }
+.dir p { font-size: 13px; color: var(--dim); }
+.dir .meta { font-size: 11.5px; color: var(--dim2); margin-top: 8px; }
+
+.score-box { display: flex; align-items: baseline; gap: 10px; margin: 4px 0 14px; }
+.score-box .n { font-size: 34px; font-weight: 800; color: var(--lime); line-height: 1; }
+.score-box .lv { font-size: 13px; color: var(--dim); }
+
+.data-row { display: flex; gap: 9px; flex-wrap: wrap; margin-bottom: 10px; }
+.data-row .btn { flex: 1; min-width: 130px; padding: 12px; font-size: 13.5px; }
+
+.foot { text-align: center; font-size: 11.5px; color: var(--dim2); padding: 18px 0 8px; line-height: 1.7; }
+
+.toast {
+  position: fixed; left: 50%; bottom: calc(92px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(12px);
+  background: #16202b; color: var(--text); border: 1px solid var(--line2);
+  padding: 10px 16px; border-radius: 11px; font-size: 13px; z-index: 99;
+  opacity: 0; transition: .22s; pointer-events: none; box-shadow: var(--shadow);
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+.daynav { display: flex; gap: 9px; margin-top: 4px; }
+.daynav .btn { padding: 11px; font-size: 13px; }
+
+@media (min-width: 720px) {
+  .app { padding: 20px 20px 40px; }
+  .hero h2 { font-size: 24px; }
+  .heat { gap: 5px; }
+  .heat i { width: 13px; height: 13px; }
+  .heat { grid-template-rows: repeat(7, 13px); grid-auto-columns: 13px; }
+}
+
+@media print {
+  .topbar, .tabbar, .searchbar, .daynav, .checkin-row, .toast { display: none !important; }
+  body { background: #fff; color: #000; }
+  .card { box-shadow: none; border-color: #ccc; background: #fff; }
+  .view { display: block !important; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+  <div class="brand">
+    <img src="icon-192.png" alt="">
+    <div>
+      <h1>Attack60</h1>
+      <p>网络攻击与逆向 · 60 天基线</p>
+    </div>
+  </div>
+  <button class="icon-btn" id="searchToggle" aria-label="搜索" title="搜索">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+  </button>
+  <button class="icon-btn" id="dataToggle" aria-label="数据与设置" title="数据与设置">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.3 1.9l.1.1a2 2 0 11-2.8 2.8l-.1-.1a1.7 1.7 0 00-1.9-.3 1.7 1.7 0 00-1 1.5V21a2 2 0 11-4 0v-.1a1.7 1.7 0 00-1.1-1.5 1.7 1.7 0 00-1.9.3l-.1.1a2 2 0 11-2.8-2.8l.1-.1a1.7 1.7 0 00.3-1.9 1.7 1.7 0 00-1.5-1H3a2 2 0 110-4h.1a1.7 1.7 0 001.5-1.1 1.7 1.7 0 00-.3-1.9l-.1-.1a2 2 0 112.8-2.8l.1.1a1.7 1.7 0 001.9.3H9a1.7 1.7 0 001-1.5V3a2 2 0 114 0v.1a1.7 1.7 0 001 1.5 1.7 1.7 0 001.9-.3l.1-.1a2 2 0 112.8 2.8l-.1.1a1.7 1.7 0 00-.3 1.9V9a1.7 1.7 0 001.5 1H21a2 2 0 110 4h-.1a1.7 1.7 0 00-1.5 1z"/></svg>
+  </button>
+  </div>
+</header>
+
+<div class="searchbar hidden" id="searchBar">
+  <div class="searchbar-inner">
+    <input id="searchInput" type="search" placeholder="搜任务 / 资源 / 技术名，例如 SQLi、Kerberos" autocomplete="off">
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<main class="app">
+  <section class="view active" id="view-today"></section>
+  <section class="view" id="view-plan"></section>
+  <section class="view" id="view-res"></section>
+  <section class="view" id="view-quiz"></section>
+  <section class="view" id="view-lab"></section>
+  <section class="view" id="view-data"></section>
+</main>
+
+<nav class="tabbar" id="tabbar">
+  <div class="tabbar-inner">
+  <button class="tab active" data-view="today">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 10h18M8 14h3"/></svg>
+    <span>今日</span>
+  </button>
+  <button class="tab" data-view="plan">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h9M4 12h9M4 18h5"/><circle cx="17" cy="7" r="2.4"/><circle cx="17" cy="17" r="2.4"/><path d="M17 9.4v5.2"/></svg>
+    <span>路线</span>
+  </button>
+  <button class="tab" data-view="res">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 5.5A2.5 2.5 0 016.5 3H19v15H6.5A2.5 2.5 0 004 20.5z"/><path d="M4 20.5A2.5 2.5 0 016.5 18H19v3H6.5"/></svg>
+    <span>资源</span>
+  </button>
+  <button class="tab" data-view="quiz">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.2 9a3 3 0 015.6 1.3c0 2-2.8 2.2-2.8 4.2"/><path d="M12 17.6h.01"/></svg>
+    <span>自测</span>
+  </button>
+  <button class="tab" data-view="lab">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 20l7-7"/><path d="M14.5 3.5l6 6-4 4-6-6z"/><path d="M9 15l-1 5 5-1"/></svg>
+    <span>深造</span>
+  </button>
+  </div>
+</nav>
+
+<script>
+/* Attack60 课程数据 —— 60 天 / 每天 3 小时 / 零基础起步 */
+window.PLAN = {
+  meta: {
+    title: "Attack60 · 网络攻击与逆向 60 天基线",
+    sub: "从零命令行到中小企业授权渗透 + 逆向 triage 的基准线",
+    days: 60,
+    minutes: 180,
+    version: "1.0",
+    updated: "2026-10-20"
+  },
+
+  phases: [
+    { id: 0, name: "预科与环境", range: [1, 7], color: "#38bdf8", goal: "能独立操作 Linux、看懂一次 HTTP 交互、把实验环境关进笼子", outcome: "干净快照 + 授权模板 + 20 条命令肌肉记忆" },
+    { id: 1, name: "Web 与网络渗透", range: [8, 21], color: "#a3e635", goal: "独立完成一台 Web 靶机并把漏洞讲成报告", outcome: "3 篇 writeup + Burp 闭环 + 扫描器验证习惯" },
+    { id: 2, name: "内网与 AD", range: [22, 35], color: "#f59e0b", goal: "从一台普通主机走到域控，并说清每一步的日志痕迹", outcome: "一条完整 AD 攻击链 + 检测验证表" },
+    { id: 3, name: "逆向工程", range: [36, 49], color: "#22d3ee", goal: "读懂 x86-64 与 PE，独立 triage 一个样本", outcome: "1 份 5 页样本分析报告 + 3 个 crackme" },
+    { id: 4, name: "综合与交付", range: [50, 60], color: "#f472b6", goal: "端到端打通并按商业标准交付", outcome: "可交付报告 + 作品集 + 深造方向" }
+  ],
+
+  weeks: [
+    { n: 1, p: 0, theme: "预科：命令行、网络、环境、笔记", output: "可复现实验环境 + 授权模板", range: [1, 7] },
+    { n: 2, p: 1, theme: "方法论与侦察", output: "目标画像模板 + Burp 抓改重放闭环", range: [8, 14] },
+    { n: 3, p: 1, theme: "Web 漏洞与靶场", output: "3 篇 writeup + 2 台靶机", range: [15, 21] },
+    { n: 4, p: 2, theme: "Windows 与 AD 基础", output: "自建域环境 + AD 侦察清单", range: [22, 28] },
+    { n: 5, p: 2, theme: "内网攻击链与检测", output: "完整 AD 链路 + 检测验证表", range: [29, 35] },
+    { n: 6, p: 3, theme: "逆向基础：汇编与工具", output: "5 段反汇编 + 3 个 crackme", range: [36, 42] },
+    { n: 7, p: 3, theme: "恶意样本分析", output: "1 份样本分析报告", range: [43, 49] },
+    { n: 8, p: 4, theme: "综合演练与交付", output: "端到端报告 + 作品集", range: [50, 56] },
+    { n: 9, p: 4, theme: "考核与深造", output: "成绩单 + 90 天后续计划", range: [57, 60] }
+  ],
+
+  days: [
+    { d: 1, w: 1, p: 0, t: "先把实验室和红线立起来", f: "零基础第一课不是学工具，而是学在哪个笼子里动手。",
+      k: ["读 flk.npc.gov.cn 上的《网络安全法》第二十七、六十三条与《刑法》第二百八十五、二百八十六条原文，抄下 5 条你绝不碰的红线。",
+          "装 VMware Workstation Player 或 VirtualBox；下载 Kali ISO，建虚拟机 4GB 内存 / 2 核 / 40GB，网络选仅主机 Host-Only。",
+          "手画实验拓扑：攻击机 / 靶机 / 网段 / 快照策略，拍照或 Excalidraw 存档。",
+          "写一页《授权与范围确认书》模板：范围、时间窗、禁止动作、应急联系人、数据处置。"],
+      r: ["flk", "kali"], a: "拓扑图 + 授权模板 + 第一个干净快照 clean-base" },
+
+    { d: 2, w: 1, p: 0, t: "Linux 命令行（一）：文件与权限", f: "命令行的目标不是背命令，是建立路径与权限的空间感。",
+      k: ["学文件系统层级和 20 个高频命令：ls cd pwd cp mv rm mkdir cat less head tail grep find chmod chown ps kill tar ssh。",
+          "过 OverTheWire Bandit Level 0–10，每关只记两列：用了什么命令 / 为什么。",
+          "练权限：建三个用户组，用 chmod 750 与 644 制造能读不能写，再对比 sudo 与 umask。",
+          "把踩坑写进笔记，晚上用 Anki 记 20 张命令卡。"],
+      r: ["otw"], a: "Bandit 到 Level 10；能解释 rwx 对目录和文件的区别" },
+
+    { d: 3, w: 1, p: 0, t: "Linux 命令行（二）：文本、进程、服务", f: "渗透现场 80% 的时间在处理文本输出。",
+      k: ["grep / sed / awk / find / xargs 组合；tar 与 gzip 打包解包；ps / top / kill / systemctl 管进程与服务。",
+          "Bandit Level 11–20。",
+          "练一条实用流水线：find . -name '*.log' | xargs grep -i password。",
+          "整理《Linux 现场 20 条命令》一页纸：日志、网络、进程、权限各 5 条。"],
+      r: ["otw"], a: "Bandit 通关到 20；20 条命令能默写" },
+
+    { d: 4, w: 1, p: 0, t: "网络基础与抓包", f: "看不见的流量，等于不存在的证据。",
+      k: ["读 TCP/IP 四层、三次握手与四次挥手、DNS 递归/迭代、HTTP 请求响应结构（RFC 9110 第 2–3 章够用）。",
+          "Wireshark 抓一次本地 HTTP 登录：过滤 http.request.method == POST，Follow → TCP Stream，圈出账号密码字段。",
+          "nmap 三个层次各扫一次：-sn 存活、-sS 端口、-sV -sC 服务与脚本，对比输出差异。",
+          "写一页《从输入网址到页面出现》的链路笔记。"],
+      r: ["rfc9110", "wireshark", "nmap"], a: "能指着抓包说出三次握手在哪三行；能解释 SYN 扫描为什么不完成握手" },
+
+    { d: 5, w: 1, p: 0, t: "Python（一）：把重复劳动脚本化", f: "脚本能力决定你后面 50 天的时间利用率。",
+      k: ["语法过一遍：变量、条件、循环、函数、列表/字典、异常、文件读写。",
+          "用 requests 写批量检查 URL 状态码与标题的脚本，参数用 sys.argv 传。",
+          "把第 4 天的 nmap 结果转成 CSV，用 Python 统计开放端口分布。",
+          "建私有 GitHub 仓库 attacker-notes，把脚本推上去。"],
+      r: ["kali"], a: "两个脚本可运行；README 写明仅用于自有实验环境" },
+
+    { d: 6, w: 1, p: 0, t: "Python（二）+ Git + 笔记体系", f: "从今天起，你的输出要能被别人复现。",
+      k: ["用 socket 写 TCP 端口探测，只允许 127.0.0.1 与你的实验网段，硬编码白名单。",
+          "加 argparse、logging、超时与重试；报错要打印原因而不是崩掉。",
+          "Git 练：init / add / commit / branch / merge / remote push，手工解一次冲突。",
+          "Obsidian 建四个目录：01攻击 02防御 03逆向 04法律与流程。"],
+      r: [], a: "探测脚本带白名单校验；四目录笔记结构建立" },
+
+    { d: 7, w: 1, p: 0, t: "周测与环境固化", f: "环境能 2 小时重建，才敢放心破坏它。",
+      k: ["做自测页第 1 周题目，错题进 Anki。",
+          "Kali 装齐：nmap ffuf gobuster sqlmap seclists jq，确认 Burp 可用。",
+          "做快照 clean-tools，写《环境重建清单》。",
+          "复盘：本周最卡的 3 个点、解决路径、下周要改的一个习惯。"],
+      r: ["kali", "pswa"], a: "周测 ≥ 80 分；别人照清单能复现你的环境" },
+
+    { d: 8, w: 2, p: 1, t: "方法论：先有流程，再有工具", f: "没有方法论的人，靶机换个皮肤就不会了。",
+      k: ["读 PTES 阶段划分、OWASP WSTG 目录结构、NIST SP 800-115 第 3–5 章（范围、执行、分析）。",
+          "画 ATT&CK 企业矩阵主路径：初始访问 → 执行 → 持久化 → 提权 → 横向 → 收集 → 外传，每格写 1 个你会用的技术。",
+          "写《一次小型渗透的 8 个交付节点》：授权、信息收集、验证、利用、横向、报告、复测、归档。",
+          "给这 60 天写下个人靶场范围：只打自建 VM 与授权平台。"],
+      r: ["ptes", "wstg", "nist800115", "attack"], a: "8 个节点都能讲清输入与输出" },
+
+    { d: 9, w: 2, p: 1, t: "信息收集：把猜测变成证据", f: "侦察阶段的产出是假设清单，不是端口列表。",
+      k: ["被动：whois、dig any、crt.sh 证书透明日志、搜索引擎语法 site: filetype:。",
+          "主动：nmap -sC -sV -oX out.xml，用 grep/awk 提服务；whatweb、httpx 做指纹。",
+          "对本地 DVWA 或 THM 免费房间做完整侦察，产出《目标画像》：域名/端口/技术栈/人员/泄露面。",
+          "把信息分两栏：证实的 / 猜的，各自标注来源。"],
+      r: ["nmap", "thm", "wstg"], a: "一份带来源标注的目标画像" },
+
+    { d: 10, w: 2, p: 1, t: "HTTP 协议与 Burp 上手", f: "Burp 是外科手术刀，不是扫描器。",
+      k: ["读 RFC 9110：方法、状态码分类、Cookie、缓存与认证头。",
+          "Burp 配代理并安装 CA 证书；过一遍 Proxy / Repeater / Decoder / Comparer。",
+          "在 DVWA 抓登录包，改 User-Agent、改参数、重放，观察响应差异。",
+          "整理《Burp 五个高频场景》与快捷键表。"],
+      r: ["rfc9110", "burp"], a: "不看教程完成抓包-改包-重放闭环" },
+
+    { d: 11, w: 2, p: 1, t: "Burp 实战：爆破与差异分析", f: "差异可能是长度、时间、状态码，也可能是数据库里多了一行。",
+      k: ["Intruder 四种模式（Sniper / Battering ram / Pitchfork / Cluster bomb）各做一次。",
+          "DVWA Brute Force low：用字典爆破，观察响应长度与状态码差异。",
+          "做 PortSwigger 的 Burp 入门系列 lab。",
+          "写清 Session / Cookie / Token 的区别与各自攻击面。"],
+      r: ["burp", "pswa"], a: "能解释为什么长度差异比状态码更可靠" },
+
+    { d: 12, w: 2, p: 1, t: "SQL 注入：从原理到手工", f: "会跑 sqlmap 不叫会 SQL 注入。",
+      k: ["原理：拼接、报错注入、联合查询、布尔盲注、时间盲注。",
+          "PortSwigger SQLi 全部 Apprentice 级 lab 做完。",
+          "选 1 个 lab 纯手工完成，再用 sqlmap -r 请求文件复现，对比两者信息量。",
+          "写一页防御：参数化查询、最小权限、错误信息收敛、WAF 只是兜底。"],
+      r: ["pswa"], a: "手工推出库名与表名；能说清 sqlmap 每一步在做什么" },
+
+    { d: 13, w: 2, p: 1, t: "XSS 与 CSRF：执行上下文决定一切", f: "同一个 payload 在 HTML、属性、JS、URL 里命运完全不同。",
+      k: ["反射 / 存储 / DOM 三种 XSS 的触发点与执行上下文。",
+          "PortSwigger XSS Apprentice labs 全过。",
+          "CSRF：token 校验、SameSite、Referer 校验的失效条件。",
+          "写 3 个真实业务场景的 PoC 描述（只写思路，不在真实站点验证）。"],
+      r: ["pswa"], a: "能按输出位置选编码方式；能说清 SameSite=Lax 挡不住什么" },
+
+    { d: 14, w: 2, p: 1, t: "周测与写第一篇 writeup", f: "写不出来，说明还没真懂。",
+      k: ["做第 2 周自测。",
+          "选 3 个做过的 lab，按目标-环境-步骤-证据-修复写 writeup，每篇 400 字以上。",
+          "推到 GitHub 并开 Pages（为第 55 天作品集铺路）。",
+          "复盘：这周哪个概念是以为自己懂了？写一句打脸的话。"],
+      r: ["pswa"], a: "3 篇可公开 writeup；GitHub Pages 能打开" },
+
+    { d: 15, w: 3, p: 1, t: "文件上传、路径穿越、命令注入", f: "这三类漏洞的共同点是：把用户输入当成了路径或命令。",
+      k: ["文件上传：后缀、Content-Type、魔术字节、二次渲染、.htaccess、解析漏洞各试一次（DVWA）。",
+          "路径穿越 ../ 与编码变体；命令注入 ; | && $() 与带外盲注。",
+          "PortSwigger 对应 Apprentice labs。",
+          "写《上传功能 checklist》10 条。"],
+      r: ["pswa"], a: "能说清为什么白名单比黑名单可靠" },
+
+    { d: 16, w: 3, p: 1, t: "SSRF 与 XXE：让服务器替你出手", f: "SSRF 的价值不在回显，在于它能碰到你碰不到的内网。",
+      k: ["SSRF：内网探测、协议利用（file/gopher/dict）、云元数据 169.254.169.254、DNS 重绑定概念。",
+          "XXE：实体、外部实体、盲 XXE 带外、SVG/DOCX 载体。",
+          "PortSwigger SSRF 与 XXE Apprentice labs。",
+          "写防御：出站白名单、禁用外部实体、元数据服务加固。"],
+      r: ["pswa"], a: "能画出一次 SSRF 打穿内网的路径图" },
+
+    { d: 17, w: 3, p: 1, t: "认证与授权：401 与 403 之间", f: "IDOR 不是认证问题，是对象级授权问题。",
+      k: ["认证：爆破、凭据填充、MFA 绕过、密码重置缺陷、会话固定。",
+          "授权：IDOR、水平/垂直越权、JWT（alg=none、弱密钥、kid 注入）。",
+          "PortSwigger Authentication / Access control / JWT labs。",
+          "写《权限模型自检表》：每个接口问三句，谁、能对谁、做什么。"],
+      r: ["pswa"], a: "能区分 401/403 语义并解释 IDOR 的根因" },
+
+    { d: 18, w: 3, p: 1, t: "业务逻辑与 API", f: "扫描器扫不到的地方，才是人的价值。",
+      k: ["业务逻辑：价格、数量、优惠券、竞态条件、流程跳过。",
+          "API：REST 与 GraphQL 基础；BOLA / BFLA；Swagger 泄露。",
+          "PortSwigger business logic labs + API testing 前几关。",
+          "写：为什么扫描器发现不了逻辑漏洞？举 3 个例子。"],
+      r: ["pswa"], a: "能设计一个扫描器扫不到、但真实可利用的场景" },
+
+    { d: 19, w: 3, p: 1, t: "工具链与误报治理", f: "扫描器的输出是线索，不是结论。",
+      k: ["ffuf 的目录 / 参数 / 子域三种用法；SecLists 里该选哪些字典。",
+          "nuclei：跑模板、读模板、改模板；理解误报率从哪来。",
+          "对 DVWA 全站扫一遍，人工逐条验证，统计误报。",
+          "写《扫描结果验证 SOP》：复现 → 最小化 → 影响 → 证据。"],
+      r: ["ffuf", "nuclei"], a: "一份误报统计表；能说清哪类发现必须手工确认" },
+
+    { d: 20, w: 3, p: 1, t: "靶场实战：两台 easy", f: "卡住时先记缺哪个知识点，而不是找提示。",
+      k: ["TryHackMe 选 2 台 easy 机器（Basic Pentesting / Blue 一类），全程记录命令时间线。",
+          "卡住先写我缺哪个知识点，再去看提示。",
+          "两台都写 writeup，重点写第一小时我是怎么想的。",
+          "把用到的命令整理成 cheatsheet。"],
+      r: ["thm"], a: "2 台 rooted + 2 篇 writeup" },
+
+    { d: 21, w: 3, p: 1, t: "周测与 HTB 起点", f: "平台难度不同，暴露的短板也不同。",
+      k: ["做第 3 周自测。",
+          "HTB Starting Point 前 2 台（Meow / Fawn 级别），用 VPN 连。",
+          "对比 THM 与 HTB 的提示风格，写下你更适合哪种。",
+          "复盘：把不会翻译成要补的具体知识点清单。"],
+      r: ["htb"], a: "HTB 2 台完成；一份待补知识清单" },
+
+    { d: 22, w: 4, p: 2, t: "Windows 主机基础", f: "内网是 Windows 的世界，先把它的脾气摸清。",
+      k: ["注册表五大根键、服务（services.msc / sc）、计划任务、用户组、UAC、访问令牌。",
+          "PowerShell：Get-Process / Get-Service / 管道与对象；本机用户与组管理。",
+          "Sysinternals：Process Explorer、Autoruns、TCPView、Procmon 各用一次。",
+          "写《Windows 主机排查 15 条》。"],
+      r: ["sysinternals", "msad"], a: "能用 Procmon 抓到一个程序的注册表与文件行为" },
+
+    { d: 23, w: 4, p: 2, t: "AD 概念与自建域控", f: "Kerberos 不懂，Kerberoasting 就只是复制命令。",
+      k: ["域/林/OU/GPO/站点；Kerberos 票据（TGT/TGS）、LDAP、DNS 与 SRV 记录。",
+          "建 Windows Server 评估版 DC（180 天），promote 成域控，加一台 Win10 入域（16GB 各给 2GB）。",
+          "建 3 个用户、2 个组、1 个 OU，给一个用户配 SPN。",
+          "画 AD 结构图与认证流程图：用户登录到访问文件服务器。"],
+      r: ["msad", "kerberos"], a: "DC 与客户端互通；能讲清 TGT 与 TGS 的区别" },
+
+    { d: 24, w: 4, p: 2, t: "AD 侦察：把域画成图", f: "BloodHound 的价值是把权限关系变成可走的路径。",
+      k: ["BloodHound + SharpHound 采集，看懂 4 类边：MemberOf、AdminTo、HasSession、GenericAll。",
+          "netexec 做 SMB/LDAP/WinRM 探测；ldapsearch 查对象。",
+          "枚举：用户、组、计算机、SPN、委派、ACL 异常。",
+          "写《AD 侦察清单》，每条标注对应 ATT&CK 技术编号。"],
+      r: ["bloodhound", "netexec"], a: "在 BloodHound 找到一条通往 Domain Admin 的路径并截图" },
+
+    { d: 25, w: 4, p: 2, t: "凭证攻击：票据与哈希", f: "拿到凭证那一刻，攻击才真正开始。",
+      k: ["Kerberoasting：请求 SPN 服务票据，离线破解（hashcat -m 13100）。",
+          "AS-REP Roasting：不需要预认证的账号（-m 18200）。",
+          "密码喷洒与锁定策略；Responder 抓 NTLMv2；mitm6 与中继概念。",
+          "写：每种攻击的前提条件与检测信号（事件 ID / 日志）。"],
+      r: ["impacket", "netexec"], a: "拿到 1 个服务账号明文；能说出对应日志长什么样" },
+
+    { d: 26, w: 4, p: 2, t: "横向移动：从一台到一片", f: "横向靠凭证，不靠漏洞。",
+      k: ["PtH（-m 16700）、Overpass-the-Hash、Pass-the-Ticket。",
+          "WMI / WinRM / SMB 三种执行方式；PsExec 与 smbexec 的痕迹差异。",
+          "impacket 套件：secretsdump、wmiexec、psexec、smbclient。",
+          "为每条横向路径写日志会留下什么。"],
+      r: ["impacket", "attack"], a: "从普通主机横向到第二台，步骤可复现" },
+
+    { d: 27, w: 4, p: 2, t: "ADCS 与本地提权", f: "证书是 AD 里最容易被忽略的提权面。",
+      k: ["ADCS 概念：CA、模板、注册权限；用 Certipy 找有问题的模板。",
+          "ESC1 原理：模板允许申请者提供 SAN 且低权限可注册 → 证书登录。",
+          "Windows 本地提权：未引用服务路径、SeImpersonate（Potato 家族）、AlwaysInstallElevated。",
+          "写《提权前先问的 5 个问题》。"],
+      r: ["certipy"], a: "能解释 ESC1 与 ESC8 的区别" },
+
+    { d: 28, w: 4, p: 2, t: "周测与 AD 靶场", f: "第一次完整链路的印象会决定你后面怎么学。",
+      k: ["做第 4 周自测。",
+          "THM 的 AD 系列房间（Breaching AD / Attacking AD 任选）或 HTB Academy AD 模块。",
+          "完整走一遍：初始立足 → 枚举 → 提权 → 域管。",
+          "写时间线 writeup：每一步的假设与被证伪的假设。"],
+      r: ["thm", "htb-academy"], a: "一条完整 AD 攻击链 + 时间线复盘" },
+
+    { d: 29, w: 5, p: 2, t: "隧道与代理", f: "能不能进内网，往往取决于一条隧道。",
+      k: ["SSH 本地/远程/动态转发 + proxychains；理解 SOCKS。",
+          "chisel 服务端与客户端；ligolo-ng 建 tun 接口。",
+          "在实验网段做三级跳：Kali → 边缘主机 → 内网。",
+          "画隧道拓扑图，标注每段协议与端口。"],
+      r: ["chisel", "ligolo"], a: "能通过隧道用 nmap 扫到内网主机" },
+
+    { d: 30, w: 5, p: 2, t: "Linux 提权", f: "提权的本质是找到一个被别人配置错的信任。",
+      k: ["SUID/SGID、sudo -l、cron、capabilities、环境变量、NFS no_root_squash。",
+          "linPEAS 只当提示，每条发现必须手工验证。",
+          "在 VulnHub 或 THM 的 Linux 机器上提权 2 台。",
+          "写《Linux 提权检查顺序》，按成功率排序。"],
+      r: ["vulnhub", "thm"], a: "2 台 root；能解释每种提权的原理" },
+
+    { d: 31, w: 5, p: 2, t: "持久化与操作安全", f: "真实项目里，删日志通常是错的。",
+      k: ["持久化技术（仅实验）：计划任务、服务、注册表 Run、SSH key、Golden Ticket。",
+          "操作安全：命令历史、日志、时间戳、文件落地位置、流量特征。",
+          "清理与不清理的取舍：授权项目通常要保留证据而不是抹掉痕迹。",
+          "写《红队操作纪律》10 条，含绝不碰生产数据。"],
+      r: ["attack"], a: "能说清持久化在授权项目里什么时候才允许" },
+
+    { d: 32, w: 5, p: 2, t: "综合靶场（一）：限时 4 小时", f: "限时是为了暴露你的决策习惯。",
+      k: ["选一台没做过的 medium 靶机（HTB 或 VulnHub），限时 4 小时。",
+          "卡住 30 分钟必须写下我现在卡在哪、下一步假设是什么。",
+          "完成后先自评：哪一步是运气。",
+          "再看官方/社区 writeup，记录你没想到的 3 个点。"],
+      r: ["htb", "vulnhub"], a: "4 小时内拿到 user 或 root 至少一个" },
+
+    { d: 33, w: 5, p: 2, t: "综合靶场（二）：换一条路再打", f: "第二条路径才证明你真的理解了环境。",
+      k: ["同一台机器换第二条路径再打（不同入口或不同提权方式）。",
+          "把整条链映射到 ATT&CK，每个动作填技术编号。",
+          "写《攻击路径图》：节点是主机/账号，边是凭证/漏洞。",
+          "对比两条路径的噪音差异。"],
+      r: ["attack"], a: "一张 ATT&CK 覆盖表 + 路径图" },
+
+    { d: 34, w: 5, p: 2, t: "检测视角：让蓝队证明你存在", f: "攻击是否有效，最后由检测侧判定。",
+      k: ["装 Sysmon 并用基线配置；看 Event ID 1/3/7/8/10/11/13。",
+          "读 3 条 Sigma 规则，理解 selection 与 condition。",
+          "用 Atomic Red Team 跑 3 个技术（T1059.001、T1003.001、T1547.001），看是否被记录。",
+          "写：你的哪一步攻击最容易被发现？为什么？"],
+      r: ["sysmon", "sigma", "atomic"], a: "3 个技术的检测结果表：命中 / 未命中 / 误报" },
+
+    { d: 35, w: 5, p: 2, t: "中期考核：半程体检", f: "分数不重要，缺口清单才重要。",
+      k: ["不限时打一台没做过的新机器，全程记录命令日志或录屏。",
+          "写报告草稿：执行摘要 + 攻击链 + 风险 + 修复建议。",
+          "对照深造页的能力矩阵自评打分。",
+          "定下半程重点：Web 补强 / AD 补强 / 逆向补强。"],
+      r: ["htb", "wstg"], a: "报告草稿 ≥ 3 页；能力矩阵有分数" },
+
+    { d: 36, w: 6, p: 3, t: "汇编基础：寄存器、栈、30 条指令", f: "逆向的门槛不是工具，是汇编的阅读速度。",
+      k: ["CPU/内存/寄存器（rax–r15、rip、rsp、rbp、标志位）；栈从高地址向低地址增长。",
+          "x86-64 核心 30 条：mov lea add sub imul xor and or cmp test jmp jcc call ret push pop inc dec shl shr。",
+          "Compiler Explorer 写 5 个 C 函数（if/for/while/switch/调用），对照汇编逐行注释。",
+          "写《C 结构 → 汇编模式》对照表。"],
+      r: ["godbolt", "intel-sdm"], a: "能看着汇编说出源码大概长什么样" },
+
+    { d: 37, w: 6, p: 3, t: "汇编模式：调用约定与优化", f: "看懂模式，比记住指令重要十倍。",
+      k: ["调用约定：Windows x64 前四参 rcx/rdx/r8/r9，返回值 rax；栈参数与影子空间。",
+          "识别：if-else 跳转、for 循环、switch 跳转表、结构体偏移、数组寻址。",
+          "用 gcc/clang -O0 与 -O2 编译同一段代码，对比优化后的形态。",
+          "手读 5 个自己写的编译产物，把每行翻回 C。"],
+      r: ["godbolt"], a: "5 段反汇编翻译正确率 ≥ 80%" },
+
+    { d: 38, w: 6, p: 3, t: "Ghidra：把二进制读成程序", f: "反编译器的输出是草稿，不是真相。",
+      k: ["装 Ghidra 与 JDK；建项目、导入、自动分析。",
+          "界面：反编译窗口、Listing、Symbol Tree、交叉引用 XREF、数据类型、重命名。",
+          "对一个 crackme 做静态分析：找 main、找校验逻辑、改判断。",
+          "写《Ghidra 10 个高频操作》。"],
+      r: ["ghidra", "crackmes"], a: "能在反编译里定位到密码比较那一行" },
+
+    { d: 39, w: 6, p: 3, t: "静态分析流程", f: "先回答它是什么，再回答它做什么。",
+      k: ["流程：文件类型 → 哈希 → 字符串 → 导入表 → 节区与熵 → 编译器识别 → 可疑 API。",
+          "工具：file、strings（含 Unicode）、Detect It Easy、PE-bear、capa、FLOSS。",
+          "对 3 个正常程序和 1 个 crackme 跑完整流程，做对比表。",
+          "写《静态分析 60 分钟 SOP》。"],
+      r: ["detect-it-easy", "capa", "floss"], a: "10 分钟内判断一个样本大概干什么、用什么语言写的" },
+
+    { d: 40, w: 6, p: 3, t: "PE 格式：文件里的地图", f: "RVA 与文件偏移的换算是逆向的基本功。",
+      k: ["读 PE/COFF 规范：DOS 头、NT 头、节表、RVA 与文件偏移、AddressOfEntryPoint。",
+          "导入表、导出表、重定位、资源；.NET 与原生程序的区别。",
+          "用 PE-bear 手工改一个字段（如节名），观察是否还能运行。",
+          "写《PE 结构速查图》。"],
+      r: ["pe-coff", "pebear"], a: "能手工算出某个 RVA 对应的文件偏移" },
+
+    { d: 41, w: 6, p: 3, t: "动态调试：x64dbg", f: "静态看意图，动态看事实。",
+      k: ["x64dbg：断点（软件/硬件/内存）、单步、运行到返回、调用栈、内存映射、补丁。",
+          "对一个 crackme 动态跟踪：找到关键比较，改寄存器或改跳转，写出注册机思路。",
+          "Procmon + API Monitor 观察文件、注册表、网络行为。",
+          "写《调试器排错 5 问》：为什么断点没命中？"],
+      r: ["x64dbg", "procmon"], a: "patch 成功一个 crackme 并截图关键跳转" },
+
+    { d: 42, w: 6, p: 3, t: "周测与 crackme 三连", f: "直觉是练出来的，不是天生的。",
+      k: ["做第 6 周自测。",
+          "crackmes.one 选 3 个 easy，限时 45 分钟一个，写出 keygen 或 patch 思路。",
+          "记录每个题第一眼看到什么——突破口通常有共性。",
+          "复盘错题与卡点。"],
+      r: ["crackmes"], a: "3 个 crackme 有解；能说出每题的突破口" },
+
+    { d: 43, w: 7, p: 3, t: "样本安全与分析机", f: "分析恶意样本的第一原则：它不能跑在你的主机上。",
+      k: ["样本纪律：隔离虚拟机、断网、快照、共享文件夹只读、压缩包密码 infected。",
+          "装 FLARE VM 或 REMnux（16GB 建议只开一台分析机）。",
+          "样本来源：MalwareBazaar / theZoo，只取 triage 级，别碰勒索样本。",
+          "写《样本操作规范》一页。"],
+      r: ["flarevm", "remnux"], a: "分析机可断网运行；规范文档完成" },
+
+    { d: 44, w: 7, p: 3, t: "静态 triage：capa、FLOSS、YARA", f: "先给样本贴标签，再决定要不要深挖。",
+      k: ["capa 识别能力并映射 MITRE；FLOSS 解混淆字符串；写 3 条 YARA 规则。",
+          "对 1 个真样本做静态 triage：类型、编译器、壳、导入、字符串、能力。",
+          "用 VirusTotal 交叉验证（不要上传私有或敏感样本）。",
+          "写《静态 triage 报告》模板。"],
+      r: ["capa", "floss", "yara"], a: "能给出这是哪类恶意软件的判断与依据" },
+
+    { d: 45, w: 7, p: 3, t: "动态行为：时间线还原", f: "行为分析的产出是一张时间线，不是一堆截图。",
+      k: ["Procmon 按 Process Name 过滤；Regshot 对比注册表快照。",
+          "Wireshark 看 C2 流量特征：域名、UA、心跳、编码。",
+          "还原 API 调用序列：VirtualAllocEx → WriteProcessMemory → CreateRemoteThread。",
+          "写《行为分析记录表》：时间/进程/文件/注册表/网络/结论。"],
+      r: ["procmon", "wireshark"], a: "一张完整行为时间线" },
+
+    { d: 46, w: 7, p: 3, t: "加壳与反调试", f: "壳只是把代码藏起来，不是让它消失。",
+      k: ["识别壳：节区名、熵、入口点特征、Detect It Easy。",
+          "UPX 手脱：找 OEP、dump、修复 IAT（x64dbg + Scylla 概念）。",
+          "反调试：IsDebuggerPresent、CheckRemoteDebuggerPresent、时间差、异常处理。",
+          "写《脱壳决策树》。"],
+      r: ["x64dbg", "detect-it-easy"], a: "成功脱一个 UPX 样本并能运行" },
+
+    { d: 47, w: 7, p: 3, t: "宏与脚本样本", f: "大多数真实入侵的起点，是一封邮件。",
+      k: ["Office 宏：oletools（olevba）提取 VBA，看懂 AutoOpen / Document_Open。",
+          "PowerShell 混淆：Base64、字符串拼接、IEX；还原成可读脚本。",
+          "JS/VBS 样本：wscript、mshta；去混淆后画执行链。",
+          "写 3 条针对这类样本的 YARA 或 Sigma 规则。"],
+      r: ["oletools"], a: "还原一段混淆 PowerShell 的真实行为" },
+
+    { d: 48, w: 7, p: 3, t: "内存取证入门", f: "磁盘上没有的东西，内存里可能还热着。",
+      k: ["Volatility3 基础：镜像信息、进程列表、网络连接、注入检测（malfind）。",
+          "用公开内存镜像练习：找可疑进程、提取注入代码。",
+          "结合第 45 天的行为，理解磁盘上没有但内存里有。",
+          "写《内存取证 10 条命令》。"],
+      r: ["volatility3"], a: "能从内存镜像里指出一个可疑进程与依据" },
+
+    { d: 49, w: 7, p: 3, t: "周测与样本分析报告", f: "报告是逆向工程师的产品。",
+      k: ["做第 7 周自测。",
+          "选 1 个样本写完整报告：摘要、静态、动态、行为、IOC、家族判断、处置建议。",
+          "把 IOC 写成可机读格式（CSV / STIX 概念）。",
+          "复盘：逆向最花时间的是哪一步？"],
+      r: ["capa", "yara"], a: "一份 5 页以上样本分析报告" },
+
+    { d: 50, w: 8, p: 4, t: "全链路演练：端到端", f: "把六周拆开学的东西缝成一条链。",
+      k: ["自建或云端靶场：外网 Web 入口 → 立足 → 提权 → 横向 → 域控。",
+          "限时 6 小时，全程记录时间线与假设。",
+          "每 30 分钟写一行当前状态与下一步。",
+          "结束后画完整攻击图。"],
+      r: ["goad", "htb"], a: "端到端打通一次，哪怕是 easy 环境" },
+
+    { d: 51, w: 8, p: 4, t: "初始访问与钓鱼推演", f: "只做防御视角推演，不搭真实钓鱼基础设施。",
+      k: ["钓鱼的组成：pretext、载体（宏/LNK/ISO/HTML 走私）、投递、规避。",
+          "只做防御视角推演：如果你是蓝队，怎么发现？",
+          "邮件安全：SPF/DKIM/DMARC、附件沙箱、链接改写。",
+          "写《初始访问检测清单》。"],
+      r: ["attack"], a: "能说清一次钓鱼从发送到执行的每个可检测点" },
+
+    { d: 52, w: 8, p: 4, t: "边界资产与云", f: "中小企业的洞，多半开在没人管的边界设备上。",
+      k: ["SME 常见暴露面：VPN、Exchange/OA、RDP、备份系统、NAS、打印机、摄像头。",
+          "云 IAM 基础：AK/SK 泄露、元数据、角色信任、OAuth 授权。",
+          "对自有资产做一次外部攻击面盘点：域名、端口、证书、泄露凭据。",
+          "写《中小企业外网暴露面自查表》。"],
+      r: ["attack", "wstg"], a: "一份覆盖 6 类暴露面的自查表" },
+
+    { d: 53, w: 8, p: 4, t: "报告写作：给老板看的那一页", f: "客户买的是风险判断，不是你的 shell。",
+      k: ["结构：执行摘要（给老板）→ 范围与方法 → 发现（按风险排序）→ 证据 → 修复建议 → 附录。",
+          "CVSS 3.1 算 3 个漏洞的分数，理解向量字符串。",
+          "把第 50 天的攻击链写成正式报告，控制在 12 页内。",
+          "找一个人读执行摘要，问一句：你看懂风险了吗？"],
+      r: ["wstg"], a: "一份可交付报告；执行摘要 300 字内说清 3 件事" },
+
+    { d: 54, w: 8, p: 4, t: "客户、范围与流程", f: "技术之外的边界，决定你能不能在行业里长期干。",
+      k: ["授权书、NDA、RoE、测试窗口、应急联系人、数据脱敏与销毁。",
+          "报价与工时：SME 渗透项目的常见范围与人力估算（概念级）。",
+          "复测流程：修复验证、残余风险、关闭报告。",
+          "写《项目启动会 10 问》。"],
+      r: ["nist800115", "ptes"], a: "一套可复用的项目流程模板" },
+
+    { d: 55, w: 8, p: 4, t: "作品集：让别人 5 分钟看懂你", f: "没有作品集的技能，在招聘方眼里等于没有。",
+      k: ["整理 GitHub：3 篇 writeup + 1 个自写工具 + 1 份样本分析 + 1 份脱敏报告。",
+          "写 README：能力矩阵、项目索引、免责声明。",
+          "把 60 天打卡记录导出，做成学习轨迹。",
+          "请同行或社区给你提 3 条批评。"],
+      r: [], a: "作品集可公开访问，陌生人 5 分钟能判断你会什么" },
+
+    { d: 56, w: 8, p: 4, t: "模拟考核", f: "考的是流程稳定性，不是灵光一现。",
+      k: ["让别人选一台你没打过的机器，限时 4 小时。",
+          "不查 writeup，只允许查官方文档。",
+          "交卷：拿到什么程度 + 完整报告。",
+          "自评：与第 35 天对比，进步在哪。"],
+      r: ["htb"], a: "4 小时内产出报告；对比中期有明确进步" },
+
+    { d: 57, w: 9, p: 4, t: "结业理论考", f: "错题是你的私人教材。",
+      k: ["做自测页全部题目，按阶段统计正确率。",
+          "错题重做，直到 90% 以上。",
+          "把易错点写成 20 张 Anki 卡片。",
+          "复习能力矩阵每一项的定义。"],
+      r: [], a: "全题库正确率 ≥ 90%" },
+
+    { d: 58, w: 9, p: 4, t: "结业实操考", f: "两小时内能交付的报告，才是你的真实水平。",
+      k: ["2 台未知靶机（1 Web + 1 AD 或逆向），限时 6 小时。",
+          "全程记录命令与截图，作为证据。",
+          "结束后 2 小时内交报告。",
+          "对照评分表自评。"],
+      r: ["htb", "thm"], a: "至少 1 台完全打通 + 报告合格" },
+
+    { d: 59, w: 9, p: 4, t: "能力矩阵与证书路线", f: "现在不考什么，比考什么更重要。",
+      k: ["在深造页做 8 项能力自评，算出总分。",
+          "对照证书：eJPT（入门）→ PNPT / OSCP（实战）→ CRTP / CRTO（AD 与红队）→ OSED（逆向）。",
+          "算预算与时间：哪些证书值得你现在这个阶段考。",
+          "写《我的 12 个月证书路线图》。"],
+      r: [], a: "明确现在不考什么，并写清理由" },
+
+    { d: 60, w: 9, p: 4, t: "深造方向决策", f: "边界决定深度，选择决定速度。",
+      k: ["在深造页看 7 个方向，用矩阵打分（兴趣 / 市场 / 门槛 / 你的优势）。",
+          "选 1 主 1 辅，写 90 天后续计划。",
+          "写下我不做什么——这比我要做什么更重要。",
+          "复盘 60 天：3 个最大收获、3 个最大坑、1 个要改的习惯。"],
+      r: [], a: "一份 90 天后续计划 + 方向决策记录" }
+  ]
+};
+
+</script>
+<script>
+/* 资源库：全部指向一手材料（规范 / 官方文档 / 原始靶场 / 官方仓库） */
+window.RESOURCES = [
+  /* ---------- 法律与合规 ---------- */
+  { id: "flk", n: "国家法律法规数据库", u: "https://flk.npc.gov.cn/", c: "law", tier: "一手",
+    note: "《网络安全法》《刑法》《数据安全法》原文。所有技术学习的前置约束，先读这个再装工具。" },
+  { id: "djbh", n: "中国网络安全等级保护网", u: "http://www.djbh.net/", c: "law", tier: "一手",
+    note: "等保 2.0 政策与标准动态。中小企业安全工作的合规底座。" },
+
+  /* ---------- 原始规范 ---------- */
+  { id: "rfc9110", n: "RFC 9110 · HTTP Semantics", u: "https://www.rfc-editor.org/rfc/rfc9110.html", c: "spec", tier: "一手",
+    note: "HTTP 的权威定义。第 2–3 章够你用到结业，别再背二手博客里的状态码表。" },
+  { id: "rfc4120", n: "RFC 4120 · Kerberos V5", u: "https://www.rfc-editor.org/rfc/rfc4120", c: "spec", tier: "一手",
+    note: "TGT/TGS、预认证、SPN 的原始定义。第 3 章读一遍，Kerberoasting 就不再是玄学。" },
+  { id: "wstg", n: "OWASP WSTG 测试指南", u: "https://owasp.org/www-project-web-security-testing-guide/", c: "spec", tier: "一手",
+    note: "Web 渗透的检查项总表。用它当目录，而不是当教程。" },
+  { id: "asvs", n: "OWASP ASVS 应用安全验证标准", u: "https://owasp.org/www-project-application-security-verification-standard/", c: "spec", tier: "一手",
+    note: "把漏洞翻译成开发能执行的验收条目，写修复建议时最好用。" },
+  { id: "nist800115", n: "NIST SP 800-115 测试与评估指南", u: "https://csrc.nist.gov/pubs/sp/800/115/final", c: "spec", tier: "一手",
+    note: "范围界定、执行、分析方法论的官方版本，报告结构的来源之一。" },
+  { id: "ptes", n: "PTES 渗透测试执行标准", u: "http://www.pentest-standard.org/", c: "spec", tier: "一手",
+    note: "阶段划分与交付物的行业共识，适合拿来对照自己的流程漏了什么。" },
+  { id: "attack", n: "MITRE ATT&CK", u: "https://attack.mitre.org/", c: "spec", tier: "一手",
+    note: "对手战术与技术知识库。攻击用来找遗漏，防御用来查覆盖。" },
+  { id: "cwe25", n: "CWE Top 25", u: "https://cwe.mitre.org/top25/", c: "spec", tier: "一手",
+    note: "最危险的软件弱点清单，报告里给根因分类时比拍脑袋准。" },
+  { id: "intel-sdm", n: "Intel SDM 开发者手册", u: "https://www.intel.com/content/www/us/en/developer/articles/technical/intel-sdm.html", c: "spec", tier: "一手",
+    note: "指令集与内存模型的最终解释权。查指令语义只信它。" },
+  { id: "pe-coff", n: "Microsoft PE/COFF 规范", u: "https://learn.microsoft.com/en-us/windows/win32/debug/pe-format", c: "spec", tier: "一手",
+    note: "PE 文件格式官方定义。RVA 换算、节表、导入表都以它为准。" },
+  { id: "msad", n: "Microsoft AD DS 官方文档", u: "https://learn.microsoft.com/en-us/windows-server/identity/ad-ds/active-directory-domain-services", c: "spec", tier: "一手",
+    note: "域、OU、GPO、复制、信任的官方说明。搭域环境时按它做。" },
+
+  /* ---------- 靶场与练习 ---------- */
+  { id: "pswa", n: "PortSwigger Web Security Academy", u: "https://portswigger.net/web-security", c: "lab", tier: "靶场",
+    note: "免费、带交互实验、由 Burp 官方维护。Web 部分的主教材，60 天里会反复回来。" },
+  { id: "thm", n: "TryHackMe", u: "https://tryhackme.com/", c: "lab", tier: "靶场",
+    note: "零基础友好，Path 有引导，适合第 2–4 周建立信心。" },
+  { id: "htb", n: "Hack The Box", u: "https://www.hackthebox.com/", c: "lab", tier: "靶场",
+    note: "机器更接近真实，难度跨度大。中期考核与限时训练用它。" },
+  { id: "htb-academy", n: "HTB Academy", u: "https://academy.hackthebox.com/", c: "lab", tier: "靶场",
+    note: "模块化课程带实验环境，AD 与内网模块比视频课扎实。" },
+  { id: "otw", n: "OverTheWire Bandit", u: "https://overthewire.org/wargames/bandit/", c: "lab", tier: "靶场",
+    note: "纯 SSH 的 Linux 命令行闯关，零基础第一周的主线任务。" },
+  { id: "picogym", n: "picoCTF / picoGym", u: "https://play.picoctf.org/practice", c: "lab", tier: "靶场",
+    note: "免费的逆向与杂项题库，难度爬坡平缓，适合第 6 周加练。" },
+  { id: "crackmes", n: "crackmes.one", u: "https://crackmes.one/", c: "lab", tier: "靶场",
+    note: "专门练逆向的小程序库，按难度筛选，第 38–42 天的主力。" },
+  { id: "vulnhub", n: "VulnHub", u: "https://www.vulnhub.com/", c: "lab", tier: "靶场",
+    note: "可离线下载的整机靶场，适合 16GB 内存只开一台虚拟机的场景。" },
+  { id: "goad", n: "GOAD · Game of Active Directory", u: "https://github.com/Orange-Cyberdefense/GOAD", c: "lab", tier: "靶场",
+    note: "一键搭多域 AD 靶场的开源项目。需要 16GB 以上，可只选轻量配置。" },
+  { id: "ctftime", n: "CTFtime", u: "https://ctftime.org/", c: "lab", tier: "索引",
+    note: "赛历与题解索引。找比赛、看别人怎么解，比刷视频有效。" },
+  { id: "bazaar", n: "MalwareBazaar", u: "https://bazaar.abuse.ch/", c: "lab", tier: "一手",
+    note: "真实样本库，按家族/标签下载。只在隔离分析机里打开。" },
+  { id: "thezoo", n: "theZoo", u: "https://github.com/ytisf/theZoo", c: "lab", tier: "一手",
+    note: "带说明的历史样本集合，适合练 triage，不要碰破坏性样本。" },
+
+  /* ---------- 工具（官方文档/仓库） ---------- */
+  { id: "kali", n: "Kali Linux 官方文档", u: "https://www.kali.org/docs/", c: "tool", tier: "一手",
+    note: "工具清单与安装方式。别装一堆用不上的，先按周计划装。" },
+  { id: "nmap", n: "Nmap 官方文档（含书）", u: "https://nmap.org/book/", c: "tool", tier: "一手",
+    note: "扫描原理与脚本引擎的权威说明，比背参数表有用。" },
+  { id: "burp", n: "Burp Suite 官方文档", u: "https://portswigger.net/burp/documentation", c: "tool", tier: "一手",
+    note: "每个模块的设计意图，配合 Academy 实验一起看。" },
+  { id: "ffuf", n: "ffuf", u: "https://github.com/ffuf/ffuf", c: "tool", tier: "一手",
+    note: "目录/参数/子域模糊测试，看 README 的过滤与匹配语法。" },
+  { id: "nuclei", n: "Nuclei 文档", u: "https://docs.projectdiscovery.io/", c: "tool", tier: "一手",
+    note: "模板语法与工作流。学会读模板，你才知道扫描结果从哪来。" },
+  { id: "sqlmap", n: "sqlmap Wiki", u: "https://github.com/sqlmapproject/sqlmap/wiki", c: "tool", tier: "一手",
+    note: "只当验证与提速工具，手工原理必须先在 PortSwigger 上练熟。" },
+  { id: "impacket", n: "Impacket", u: "https://github.com/fortra/impacket", c: "tool", tier: "一手",
+    note: "Windows 协议栈的 Python 实现。secretsdump / wmiexec 都在这里。" },
+  { id: "netexec", n: "NetExec（原 CrackMapExec）", u: "https://github.com/Pennyw0rth/NetExec", c: "tool", tier: "一手",
+    note: "内网批量协议探测与利用，SMB/LDAP/WinRM 一站搞定。" },
+  { id: "bloodhound", n: "BloodHound 文档", u: "https://bloodhound.specterops.io/", c: "tool", tier: "一手",
+    note: "把 AD 权限关系变成图。读懂节点与边的语义是重点。" },
+  { id: "certipy", n: "Certipy", u: "https://github.com/ly4k/Certipy", c: "tool", tier: "一手",
+    note: "ADCS 攻防。ESC1–ESC8 的判定逻辑都在源码与 Wiki 里。" },
+  { id: "chisel", n: "Chisel", u: "https://github.com/jpillora/chisel", c: "tool", tier: "一手",
+    note: "HTTP 隧道，防火墙友好。内网穿透的第一选择之一。" },
+  { id: "ligolo", n: "Ligolo-ng", u: "https://github.com/nicocha30/ligolo-ng", c: "tool", tier: "一手",
+    note: "TUN 接口级隧道，配合 nmap 直接扫内网，比 proxychains 稳。" },
+  { id: "sysinternals", n: "Sysinternals 套件", u: "https://learn.microsoft.com/en-us/sysinternals/", c: "tool", tier: "一手",
+    note: "Windows 行为观察的瑞士军刀。Procmon/Autoruns/TCPView 必装。" },
+  { id: "procmon", n: "Process Monitor", u: "https://learn.microsoft.com/en-us/sysinternals/downloads/procmon", c: "tool", tier: "一手",
+    note: "文件/注册表/网络/进程四合一监控，样本动态分析主力。" },
+  { id: "sysmon", n: "Sysmon", u: "https://learn.microsoft.com/en-us/sysinternals/downloads/sysmon", c: "tool", tier: "一手",
+    note: "Windows 端检测数据源。做攻击的人不懂 Sysmon，就不知道自己的痕迹。" },
+  { id: "sigma", n: "Sigma 规则库", u: "https://github.com/SigmaHQ/sigma", c: "tool", tier: "一手",
+    note: "跨平台日志检测规则。读 3 条你就明白蓝队是怎么描述你的。" },
+  { id: "atomic", n: "Atomic Red Team", u: "https://github.com/redcanaryco/atomic-red-team", c: "tool", tier: "一手",
+    note: "按 ATT&CK 编号执行的最小攻击测试，用来验证检测覆盖。" },
+  { id: "wireshark", n: "Wireshark 文档", u: "https://www.wireshark.org/docs/", c: "tool", tier: "一手",
+    note: "过滤器语法与协议解析说明。抓包是唯一不会骗人的证据。" },
+  { id: "ghidra", n: "Ghidra", u: "https://ghidra-sre.org/", c: "tool", tier: "一手",
+    note: "NSA 开源的逆向平台，免费且支持反编译。安装看官方 Release Notes。" },
+  { id: "x64dbg", n: "x64dbg", u: "https://x64dbg.com/", c: "tool", tier: "一手",
+    note: "Windows 用户态调试器，插件生态好。官方文档里有完整快捷键。" },
+  { id: "pebear", n: "PE-bear", u: "https://github.com/hasherezade/pe-bear", c: "tool", tier: "一手",
+    note: "PE 结构可视化，改字段做实验最直观。" },
+  { id: "detect-it-easy", n: "Detect It Easy", u: "https://github.com/horsicq/Detect-It-Easy", c: "tool", tier: "一手",
+    note: "查壳、查编译器、看熵。样本分析第一步。" },
+  { id: "capa", n: "capa", u: "https://github.com/mandiant/capa", c: "tool", tier: "一手",
+    note: "把样本行为映射到 MITRE 能力。triage 阶段的效率工具。" },
+  { id: "floss", n: "FLOSS", u: "https://github.com/mandiant/flare-floss", c: "tool", tier: "一手",
+    note: "自动解混淆字符串，对抗简单加密与堆栈字符串。" },
+  { id: "yara", n: "YARA 文档", u: "https://virustotal.github.io/yara/", c: "tool", tier: "一手",
+    note: "样本特征规则语言。写规则的过程就是逼自己抓关键特征。" },
+  { id: "volatility3", n: "Volatility 3", u: "https://github.com/volatilityfoundation/volatility3", c: "tool", tier: "一手",
+    note: "内存取证框架。插件即命令，看 Wiki 的插件列表。" },
+  { id: "oletools", n: "oletools", u: "https://github.com/decalage2/oletools", c: "tool", tier: "一手",
+    note: "Office 宏与 OLE 结构分析。olevba 是入口。" },
+  { id: "godbolt", n: "Compiler Explorer", u: "https://godbolt.org/", c: "tool", tier: "一手",
+    note: "C/C++ 实时编译成汇编。学汇编与优化的最快反馈回路。" },
+  { id: "flarevm", n: "FLARE VM", u: "https://github.com/mandiant/flare-vm", c: "tool", tier: "一手",
+    note: "Windows 逆向分析机一键配置。装完断网再放样本。" },
+  { id: "remnux", n: "REMnux", u: "https://remnux.org/", c: "tool", tier: "一手",
+    note: "Linux 恶意代码分析发行版，静态与网络分析工具齐全。" },
+  { id: "cyberchef", n: "CyberChef", u: "https://gchq.github.io/CyberChef/", c: "tool", tier: "一手",
+    note: "编码/解码/加密的流水线工具，处理混淆脚本时省大量时间。" },
+
+  /* ---------- 书 ---------- */
+  { id: "pre-book", n: "《Practical Reverse Engineering》", u: "https://www.wiley.com/en-us/Practical+Reverse+Engineering%3A+x86%2C+x64%2C+ARM%2C+Windows+Kernel%2C+Reversing+Tools%2C+and+Obfuscation-p-9781118787311", c: "book", tier: "一手",
+    note: "逆向的经典教材，x86/x64 与 Windows 内核部分最值得读。第 6 周配套。" },
+  { id: "pma-book", n: "《Practical Malware Analysis》", u: "https://nostarch.com/malware", c: "book", tier: "一手",
+    note: "样本分析的标准流程书，实验设计极好。第 7 周配套。" },
+  { id: "win-internals", n: "《Windows Internals》", u: "https://learn.microsoft.com/en-us/sysinternals/resources/windows-internals", c: "book", tier: "一手",
+    note: "进程、线程、内存、对象的权威解释。查概念用，不用通读。" },
+
+  /* ---------- 社区与索引 ---------- */
+  { id: "ired", n: "ired.team", u: "https://www.ired.team/", c: "community", tier: "索引",
+    note: "红队技术的原始实验笔记，带命令与截图，比二手总结可靠。" },
+  { id: "hacktricks", n: "HackTricks", u: "https://hacktricks.wiki/", c: "community", tier: "索引",
+    note: "按技术分类的技巧索引。当字典查，不要当教材读。" },
+  { id: "p0", n: "Google Project Zero 博客", u: "https://googleprojectzero.blogspot.com/", c: "community", tier: "一手",
+    note: "漏洞研究的顶级一手材料，看他们怎么提出假设、怎么证伪。" },
+  { id: "oalabs", n: "OALabs", u: "https://www.oalabs.net/", c: "community", tier: "一手",
+    note: "恶意样本逆向的实操直播录像，能看到真人怎么卡住又怎么出来。" },
+  { id: "mu101", n: "MalwareUnicorn RE101", u: "https://malwareunicorn.org/workshops/re101", c: "community", tier: "一手",
+    note: "免费的逆向入门工作坊，从汇编到第一个 crackme，节奏适合零基础。" },
+  { id: "mu102", n: "MalwareUnicorn RE102", u: "https://malwareunicorn.org/workshops/re102", c: "community", tier: "一手",
+    note: "RE101 的续集，进入真实恶意代码分析。第 7 周配合使用。" }
+];
+
+</script>
+<script>
+/* 自测题库：按周组织，答案索引从 0 开始 */
+window.QUIZ = [
+  /* 第 1 周 · 预科 */
+  { w: 1, q: "Linux 中目录权限 rwx 的 x 位代表什么？", o: ["可以列出目录内文件名", "可以进入该目录并穿过它访问内部文件", "可以删除该目录", "可以修改目录属主"], a: 1, e: "r 决定能否列出文件名，x 决定能否进入目录。只有 r 没有 x 时，你看得到名字却打不开。" },
+  { w: 1, q: "执行 chmod 644 file 后，文件权限是？", o: ["属主读写，组和其他只读", "所有人可读写", "属主只读，其他可读写", "属主读写执行"], a: 0, e: "6=rw-，4=r--，4=r--。属主读写，组与其他只读。" },
+  { w: 1, q: "TCP 三次握手的正确顺序是？", o: ["SYN → ACK → SYN-ACK", "SYN → SYN-ACK → ACK", "ACK → SYN → SYN-ACK", "SYN-ACK → SYN → ACK"], a: 1, e: "客户端 SYN，服务端 SYN-ACK，客户端 ACK。抓包时三行就能认出来。" },
+  { w: 1, q: "HTTP 403 与 404 的区别是？", o: ["403 资源不存在，404 无权限", "403 无权限访问，404 资源不存在", "两者完全等价", "403 是服务端错误，404 是客户端错误"], a: 1, e: "403 是认证通过但授权失败，404 是找不到。渗透中这个区别决定你该换权限还是换路径。" },
+  { w: 1, q: "nmap -sS 通常需要 root 权限，原因是？", o: ["需要读取 /etc/shadow", "需要构造原始 TCP 包，不完成握手", "需要连接数据库", "需要关闭防火墙"], a: 1, e: "-sS 自己构造 TCP 头、只收 SYN-ACK，因此需要原始套接字；好处是快且不易被应用层记录。" },
+
+  /* 第 2 周 · 方法论与 Web 基础 */
+  { w: 2, q: "一次正规渗透测试开始前，第一步应该是？", o: ["直接扫描目标端口", "确认授权范围与规则（RoE）", "先想办法拿 shell", "先写报告模板"], a: 1, e: "没有书面授权与范围界定的测试，性质上就不是渗透测试。这一步决定后面所有动作的合法性。" },
+  { w: 2, q: "Burp Suite 中用于重放并修改单个请求的模块是？", o: ["Proxy", "Repeater", "Intruder", "Decoder"], a: 1, e: "Repeater 是手工验证的主战场：改一个参数、发一次、看差异。" },
+  { w: 2, q: "SQL 注入最根本的修复方式是？", o: ["过滤单引号", "关闭错误回显", "使用参数化查询（预编译）", "加 WAF"], a: 2, e: "参数化查询把数据与语句分离，从根上消除拼接；过滤与 WAF 都只是缓解。" },
+  { w: 2, q: "防御 XSS 最关键的思路是？", o: ["过滤 script 标签", "按输出上下文做编码", "禁用 JavaScript", "只允许 GET 请求"], a: 1, e: "同一个值在 HTML、属性、JS、URL 里需要不同编码。黑名单过滤总能被绕过。" },
+  { w: 2, q: "SameSite=Lax 的 Cookie 在哪种跨站请求中仍会发送？", o: ["跨站 POST 表单", "跨站顶级导航的 GET（如点击链接）", "跨站 fetch 请求", "任何跨站请求都不发送"], a: 1, e: "Lax 允许顶级导航的 GET 携带 Cookie，所以对 GET 型敏感操作（如改密码链接）依然有 CSRF 风险。" },
+
+  /* 第 3 周 · Web 漏洞 */
+  { w: 3, q: "文件上传功能最可靠的防御组合是？", o: ["只过滤 .php 后缀", "白名单扩展名 + 重命名 + 存到非 Web 目录", "只检查 Content-Type", "只限制文件大小"], a: 1, e: "三层叠加：能不能传、传上来叫什么、能不能被解析。任何单层都能被绕过。" },
+  { w: 3, q: "SSRF 在云环境中最常被读取的元数据地址是？", o: ["127.0.0.1", "169.254.169.254", "10.0.0.1", "224.0.0.1"], a: 1, e: "链路本地地址上的实例元数据服务，常能拿到临时凭证，是 SSRF 的最高价值目标。" },
+  { w: 3, q: "防御 XXE 最直接的做法是？", o: ["禁用外部实体解析", "过滤 < 和 >", "只允许 UTF-8", "关闭 HTTP 服务"], a: 0, e: "解析器层面关掉 DTD/外部实体，而不是靠字符串过滤。" },
+  { w: 3, q: "IDOR（越权访问对象）的根因是？", o: ["用户密码太弱", "服务端缺少对对象归属的授权校验", "没有使用 HTTPS", "Cookie 未加密"], a: 1, e: "它本质是授权缺陷：认证只回答你是谁，不回答这个对象是不是你的。" },
+  { w: 3, q: "JWT 中 alg=none 的风险是？", o: ["令牌永不过期", "服务端可能接受未签名的令牌", "令牌无法被解码", "令牌体积变大"], a: 1, e: "若服务端信任头部里的算法，攻击者可以把 alg 改成 none 并伪造任意声明。" },
+
+  /* 第 4 周 · Windows 与 AD */
+  { w: 4, q: "Kerberoasting 攻击的目标是？", o: ["域控的 krbtgt 哈希", "带 SPN 的服务账号的 TGS 票据", "用户的明文密码", "AD 数据库文件"], a: 1, e: "任何域用户都能请求服务票据，票据用服务账号哈希加密，可离线暴力破解，且不触发账号锁定。" },
+  { w: 4, q: "AS-REP Roasting 能成功的前提是？", o: ["账号属于 Domain Admins", "账号关闭了 Kerberos 预认证", "域控未打补丁", "开启了 SMB 签名"], a: 1, e: "关闭预认证后，任何人都能拿到用该账号哈希加密的 AS-REP，从而离线破解。" },
+  { w: 4, q: "BloodHound 的核心数据来源是？", o: ["端口扫描结果", "域内 ACL、会话、委派等关系数据", "DNS 记录", "防火墙规则"], a: 1, e: "它把域内的权限关系建成图，攻击路径就是图上从你到 Domain Admins 的一条边序列。" },
+  { w: 4, q: "缓解 NTLM Relay 最有效的措施是？", o: ["禁用 IPv6", "启用 SMB/LDAP 签名与 EPA，并逐步禁用 NTLM", "修改域控 IP", "关闭 DNS"], a: 1, e: "中继的前提是协议不校验通道。签名与 EPA 让中继失效，禁用 NTLM 是终局方案。" },
+  { w: 4, q: "执行 DCSync 需要的关键权限是？", o: ["Domain Users", "目录复制权限（Replicating Directory Changes）", "本地管理员", "远程桌面登录"], a: 1, e: "DCSync 伪装成域控向真实域控同步数据，因此需要复制权限；这也是为什么该权限被重点监控。" },
+
+  /* 第 5 周 · 内网与检测 */
+  { w: 5, q: "Pass-the-Hash 直接使用的是？", o: ["明文密码", "NTLM 哈希", "Kerberos 票据", "客户端证书"], a: 1, e: "NTLM 认证只需要哈希，不需要明文，所以抓不到明文也能横向。" },
+  { w: 5, q: "伪造 Golden Ticket 需要拿到什么？", o: ["域管理员密码", "krbtgt 账号的哈希", "任意普通用户的哈希", "CA 私钥"], a: 1, e: "krbtgt 哈希用来签发任意 TGT；因此它一旦泄露，等于整个域失守，必须双次重置。" },
+  { w: 5, q: "Ligolo-ng 相比 proxychains 的主要优势是？", o: ["不需要代理", "建立 TUN 接口，nmap 等工具可像本地网络一样扫描", "只能用于 Windows", "自带免杀能力"], a: 1, e: "TUN 模式让工具无需支持 SOCKS，扫描与利用都更稳定。" },
+  { w: 5, q: "在 Linux 上查找 SUID 程序的命令是？", o: ["find / -perm -4000", "ls -l /etc", "ps aux", "netstat -tunlp"], a: 0, e: "SUID 位对应的八进制是 4000，配合 -type f 更精确。" },
+  { w: 5, q: "Sysmon 的 Event ID 1 记录的是？", o: ["网络连接", "进程创建", "文件创建", "注册表修改"], a: 1, e: "ID 1 进程创建（含命令行与父进程），是检测攻击链最重要的事件源。" },
+
+  /* 第 6 周 · 汇编与 PE */
+  { w: 6, q: "Windows x64 调用约定中，前四个整型参数依次放在？", o: ["rax rbx rcx rdx", "rcx rdx r8 r9", "rsp rbp rsi rdi", "r8 r9 r10 r11"], a: 1, e: "这是 Windows x64 的约定；Linux 用 rdi rsi rdx rcx r8 r9，别混。" },
+  { w: 6, q: "x64 函数返回值通常放在？", o: ["rax", "rbx", "rcx", "rdx"], a: 0, e: "看调用后的 rax 就能知道返回结果，这是读汇编最常用的判断点。" },
+  { w: 6, q: "x86/x64 的栈增长方向是？", o: ["向高地址", "向低地址", "随机", "由编译器决定"], a: 1, e: "push 使 rsp 减小。理解这一点才能看懂栈帧与局部变量偏移。" },
+  { w: 6, q: "PE 头中的 AddressOfEntryPoint 是？", o: ["文件偏移", "RVA（相对虚拟地址）", "节区索引", "导入表下标"], a: 1, e: "需要按节表换算成文件偏移，才能定位到磁盘上的入口字节。" },
+  { w: 6, q: "PE 某节区熵接近 8.0，最可能说明？", o: ["该节区是普通代码", "数据被压缩或加密（可能加壳）", "文件已损坏", "是调试符号"], a: 1, e: "熵接近上限说明数据接近随机，常见于加壳或加密载荷。" },
+
+  /* 第 7 周 · 样本分析 */
+  { w: 7, q: "capa 的主要作用是？", o: ["脱壳", "识别样本能力并映射到 MITRE ATT&CK", "内存取证", "抓包分析"], a: 1, e: "capa 用规则匹配反汇编与导入表，快速回答这个样本具备什么能力。" },
+  { w: 7, q: "UPX 属于哪类工具？", o: ["调试器", "可执行文件压缩壳", "反编译器", "沙箱"], a: 1, e: "UPX 压缩可执行文件并附带解压存根，脱壳要先到 OEP 再 dump。" },
+  { w: 7, q: "下列哪个是常见的反调试 API？", o: ["CreateFile", "IsDebuggerPresent", "GetSystemTime", "LoadLibrary"], a: 1, e: "它查询 PEB 的 BeingDebugged 标志；对抗方式包括改标志、下手写异常等。" },
+  { w: 7, q: "Volatility3 的 malfind 插件用于？", o: ["列出进程", "查找内存中注入或可疑的可执行代码", "提取注册表", "解析网络包"], a: 1, e: "malfind 找无文件映射、可执行且可疑的内存区，是发现注入的第一步。" },
+  { w: 7, q: "分析恶意样本前最重要的一步是？", o: ["先上传 VirusTotal", "在隔离虚拟机中做快照并断网", "先运行看效果", "先改文件后缀"], a: 1, e: "样本可能横向传播或加密文件。快照 + 断网 + 只读共享是底线。" },
+
+  /* 第 8 周 · 交付 */
+  { w: 8, q: "报告的执行摘要主要给谁看？", o: ["渗透测试工程师", "管理层与非技术决策者", "开发人员", "审计机构"], a: 1, e: "决策者只关心三件事：有多大风险、会不会影响业务、要花多少资源修。" },
+  { w: 8, q: "CVSS 分数描述的是？", o: ["漏洞利用难度", "漏洞严重性（影响与可利用性综合）", "修复成本", "攻击者身份"], a: 1, e: "它是严重性评分，不等于业务风险；业务风险还要叠加资产重要性与暴露面。" },
+  { w: 8, q: "一份渗透报告里最能体现专业度的是？", o: ["用了多少种工具", "可复现步骤、影响说明与可执行修复建议", "截图数量", "漏洞数量"], a: 1, e: "客户要能照着复现、照着修。工具清单不产生价值。" },
+  { w: 8, q: "复测（retest）的核心目的是？", o: ["再收一次费用", "验证修复是否有效并评估残余风险", "找新漏洞", "写新报告"], a: 1, e: "复测关闭的是风险，不是工单。" },
+  { w: 8, q: "授权项目中，你发现生产数据库里有客户数据，正确做法是？", o: ["导出留证", "立即停止触碰，按 RoE 上报，只记录必要证据", "删除数据", "发给同事围观"], a: 1, e: "最小必要原则：能证明漏洞存在即可，绝不扩大数据接触面。" },
+
+  /* 第 9 周 · 职业与深造 */
+  { w: 9, q: "OSCP（PEN-200）考试形式是？", o: ["100 道选择题", "24 小时实操 + 报告", "48 小时写论文", "现场答辩"], a: 1, e: "24 小时内攻破多台目标并提交渗透报告，考的是流程稳定性而非炫技。" },
+  { w: 9, q: "eJPT 的定位是？", o: ["专家级红队认证", "入门级实操认证", "逆向专项认证", "云安全专项认证"], a: 1, e: "适合作为第一个证书，验证你具备完整的入门实操链路。" },
+  { w: 9, q: "CRTO 更侧重？", o: ["Web 漏洞", "红队运营与 C2 使用", "逆向工程", "合规审计"], a: 1, e: "CRTO 关注真实红队作业方式：基础设施、C2、OPSEC。" },
+  { w: 9, q: "OSED 更侧重？", o: ["漏洞利用开发与逆向", "AD 渗透", "报告写作", "云安全"], a: 0, e: "OSED 考的是写 exploit、绕过缓解机制，属于逆向与二进制方向的进阶。" },
+  { w: 9, q: "中小企业安全建设，通常最先该补的是？", o: ["买最贵的 EDR", "资产盘点与边界暴露面收敛", "自建 SOC", "全员渗透培训"], a: 1, e: "不知道自己有什么资产，后面的检测与响应都无从谈起。" }
+];
+
+</script>
+<script>
+/* Attack60 前端逻辑：打卡、路线、资源、自测、深造、数据 */
+(function () {
+  'use strict';
+
+  var P = window.PLAN, R = window.RESOURCES, Q = window.QUIZ;
+  var DAYS = P.days;
+  var RES = {};
+  R.forEach(function (r) { RES[r.id] = r; });
+
+  var KEY = 'attack60.v1';
+  var TOTAL_TASKS = DAYS.reduce(function (n, d) { return n + d.k.length; }, 0);
+  var CIRC = 2 * Math.PI * 28;
+
+  /* ---------------- 工具 ---------------- */
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function pad(n) { return n < 10 ? '0' + n : '' + n; }
+  function isoDate(d) { return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function todayISO() { return isoDate(new Date()); }
+  function clamp(n, a, b) { return Math.max(a, Math.min(b, n)); }
+  function pct(n) { return Math.round(n * 100); }
+
+  var toastTimer = null;
+  function toast(msg) {
+    var el = document.getElementById('toast');
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'toast';
+      el.className = 'toast';
+      document.body.appendChild(el);
+    }
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
+  /* ---------------- 状态 ---------------- */
+  function defaultState() {
+    return { v: 1, view: 'today', day: 1, days: {}, quiz: { log: [] }, rubric: {}, created: todayISO() };
+  }
+  var S;
+  try {
+    var raw = localStorage.getItem(KEY);
+    S = raw ? JSON.parse(raw) : null;
+  } catch (e) { S = null; }
+  if (!S || S.v !== 1) S = defaultState();
+  S.days = S.days || {};
+  S.quiz = S.quiz || { log: [] };
+  S.rubric = S.rubric || {};
+
+  function save() {
+    try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { /* 隐私模式下静默失败 */ }
+  }
+  function rec(d) { return S.days[d] || null; }
+  function ensure(d) {
+    if (!S.days[d]) S.days[d] = { at: null, done: [], min: 180, note: '' };
+    return S.days[d];
+  }
+  function doneCount(d) { return rec(d) ? rec(d).done.length : 0; }
+  function currentDay() {
+    for (var i = 1; i <= 60; i++) { if (!rec(i) || !rec(i).at) return i; }
+    return 60;
+  }
+  function totalDone() {
+    return Object.keys(S.days).reduce(function (n, k) { return n + (S.days[k].done || []).length; }, 0);
+  }
+  function streak() {
+    var set = {};
+    Object.keys(S.days).forEach(function (k) { if (S.days[k].at) set[S.days[k].at] = 1; });
+    var cur = new Date();
+    if (!set[isoDate(cur)]) cur.setDate(cur.getDate() - 1);
+    var n = 0;
+    while (set[isoDate(cur)]) { n++; cur.setDate(cur.getDate() - 1); }
+    return n;
+  }
+
+  /* ---------------- 视图切换 ---------------- */
+  function go(view, day) {
+    S.view = view;
+    if (day) S.day = clamp(day, 1, 60);
+    save();
+    render();
+    window.scrollTo(0, 0);
+  }
+  function render() {
+    var boxes = document.querySelectorAll('.view');
+    for (var i = 0; i < boxes.length; i++) boxes[i].classList.remove('active');
+    var el = document.getElementById('view-' + S.view);
+    if (!el) { S.view = 'today'; el = document.getElementById('view-today'); }
+    el.classList.add('active');
+    var map = { today: renderToday, plan: renderPlan, res: renderRes, quiz: renderQuizView, lab: renderLab, data: renderData };
+    (map[S.view] || renderToday)();
+    var tabs = document.querySelectorAll('.tab');
+    for (var j = 0; j < tabs.length; j++) tabs[j].classList.toggle('active', tabs[j].dataset.view === S.view);
+  }
+
+  /* ---------------- 今日 ---------------- */
+  function ringSVG(p) {
+    var off = CIRC * (1 - p);
+    return '<svg viewBox="0 0 66 66"><circle class="bg" cx="33" cy="33" r="28"></circle>' +
+      '<circle class="fg" cx="33" cy="33" r="28" stroke-dasharray="' + CIRC.toFixed(1) + '" stroke-dashoffset="' + off.toFixed(1) + '"></circle></svg>' +
+      '<span>' + pct(p) + '%</span>';
+  }
+
+  function renderToday() {
+    var d = clamp(S.day, 1, 60);
+    var day = DAYS[d - 1];
+    var ph = P.phases[day.p];
+    var r = rec(d);
+    var done = doneCount(d);
+    var p = done / day.k.length;
+
+    var h = '';
+    h += '<div class="hero card"><div class="hero-top"><div style="min-width:0">';
+    h += '<div class="eyebrow">第 ' + d + ' 天 / 60 · 第 ' + day.w + ' 周' + (d === currentDay() ? ' · 当前进度' : ' · 回顾/预习') + '</div>';
+    h += '<h2>' + esc(day.t) + '</h2>';
+    h += '<div class="chip-row"><span class="chip" style="--c:' + ph.color + '">' + esc(ph.name) + '</span>';
+    h += '<span class="chip ghost">' + day.k.length + ' 个任务</span><span class="chip ghost">约 3 小时</span>';
+    if (r && r.at) h += '<span class="chip" style="--c:var(--lime)">已打卡 ' + esc(r.at) + '</span>';
+    h += '</div></div><div class="ring" id="ring">' + ringSVG(p) + '</div></div>';
+    h += '<p class="focus">' + esc(day.f) + '</p></div>';
+
+    h += '<div class="card"><div class="card-head"><h3>今日任务</h3><span id="taskCount">' + done + '/' + day.k.length + '</span></div><ul class="tasks">';
+    day.k.forEach(function (t, i) {
+      var on = r && r.done.indexOf(i) >= 0;
+      h += '<li class="task' + (on ? ' done' : '') + '" data-i="' + i + '">';
+      h += '<button class="tick" data-act="toggle" data-i="' + i + '" aria-label="标记完成">' +
+        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg></button>';
+      h += '<span class="ttext">' + esc(t) + '</span></li>';
+    });
+    h += '</ul></div>';
+
+    if (day.r && day.r.length) {
+      h += '<div class="card"><h3>一手材料</h3><div class="res-links">';
+      day.r.forEach(function (id) {
+        var x = RES[id];
+        if (!x) return;
+        h += '<a class="res-link" href="' + esc(x.u) + '" target="_blank" rel="noopener">' +
+          '<span class="rname">' + esc(x.n) + '<small>' + esc(x.note) + '</small></span>' +
+          '<span class="rbadge">' + esc(x.tier) + '</span></a>';
+      });
+      h += '</div></div>';
+    }
+
+    h += '<div class="card accept"><h3>验收标准</h3><p>' + esc(day.a) + '</p></div>';
+
+    h += '<div class="card"><div class="card-head"><h3>笔记 / 卡点</h3><span id="noteStatus">自动保存</span></div>' +
+      '<textarea class="note" id="noteInput" placeholder="今天卡在哪一步？下次怎么更快？">' + esc((r && r.note) || '') + '</textarea></div>';
+
+    h += '<div class="card" id="checkinBox">' + checkinHTML(d) + '</div>';
+
+    h += '<div class="card"><div class="heat-head"><h3>打卡记录 · 近 10 周</h3><span id="streakTxt">连续 ' + streak() + ' 天 · 累计 ' + totalDone() + '/' + TOTAL_TASKS + '</span></div>' +
+      '<div class="heat" id="heat">' + heatHTML() + '</div></div>';
+
+    h += '<div class="daynav">';
+    h += '<button class="btn ghost" data-act="prev"' + (d <= 1 ? ' disabled' : '') + '>上一天</button>';
+    if (d !== currentDay()) h += '<button class="btn ghost" data-act="jump">回到第 ' + currentDay() + ' 天</button>';
+    h += '<button class="btn ghost" data-act="next"' + (d >= 60 ? ' disabled' : '') + '>下一天</button></div>';
+
+    document.getElementById('view-today').innerHTML = h;
+  }
+
+  function checkinHTML(d) {
+    var r = rec(d);
+    var day = DAYS[d - 1];
+    if (r && r.at) {
+      return '<div class="checked-badge"><span>✓</span><div><b>第 ' + d + ' 天已打卡</b> · ' + esc(r.at) +
+        ' · 用时 ' + (r.min || 0) + ' 分钟<br><span style="color:var(--dim2);font-size:12px">任务完成 ' + r.done.length + '/' + day.k.length + '</span></div>' +
+        '<button class="btn ghost small" style="margin-left:auto" data-act="undo">撤销</button></div>';
+    }
+    var done = doneCount(d);
+    return '<div class="checkin-row">' +
+      '<label class="mins">用时 <input id="mins" type="number" min="0" step="15" value="' + ((r && r.min) || 180) + '"> 分</label>' +
+      '<button class="btn" data-act="checkin">打卡（' + done + '/' + day.k.length + ' 任务）</button></div>' +
+      '<p style="color:var(--dim2);font-size:11.5px;margin-top:9px">允许部分完成打卡；任务勾选越全，进度环越满。</p>';
+  }
+
+  function heatHTML() {
+    var byDate = {};
+    DAYS.forEach(function (d) {
+      var r = rec(d.d);
+      if (r && r.at) byDate[r.at] = { n: (byDate[r.at] ? byDate[r.at].n : 0) + 1, done: r.done.length, total: d.k.length };
+    });
+    var end = new Date();
+    var start = new Date();
+    start.setDate(end.getDate() - 69);
+    start.setDate(start.getDate() - ((start.getDay() + 6) % 7)); // 对齐周一
+    var out = '';
+    var cur = new Date(start);
+    var today = isoDate(new Date());
+    while (cur <= end) {
+      var k = isoDate(cur);
+      var c = byDate[k];
+      var v = 0;
+      if (c) {
+        var ratio = c.total ? c.done / c.total : 1;
+        v = ratio <= 0.26 ? 1 : ratio <= 0.5 ? 2 : ratio <= 0.75 ? 3 : 4;
+      }
+      out += '<i data-v="' + v + '" title="' + k + (c ? ' · 已打卡 ' + c.done + '/' + c.total : ' · 未打卡') + '"' + (k === today ? ' class="today"' : '') + '></i>';
+      cur.setDate(cur.getDate() + 1);
+    }
+    return out;
+  }
+
+  function updateTodayMeta(d) {
+    var day = DAYS[d - 1];
+    var r = rec(d);
+    var done = doneCount(d);
+    var tc = document.getElementById('taskCount');
+    if (tc) tc.textContent = done + '/' + day.k.length;
+    var ring = document.getElementById('ring');
+    if (ring) ring.innerHTML = ringSVG(done / day.k.length);
+    var st = document.getElementById('streakTxt');
+    if (st) st.textContent = '连续 ' + streak() + ' 天 · 累计 ' + totalDone() + '/' + TOTAL_TASKS;
+  }
+
+  /* ---------------- 路线 ---------------- */
+  function renderPlan() {
+    var cur = currentDay();
+    var curWeek = DAYS[cur - 1].w;
+    var h = '<div class="card" style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px">' +
+      '<div><h3 style="color:var(--text);font-size:15px">60 天路线图</h3>' +
+      '<p style="color:var(--dim2);font-size:12px">9 周 · 每天约 3 小时 · 共 ' + TOTAL_TASKS + ' 个任务</p></div>' +
+      '<div style="text-align:right"><div style="font-size:20px;font-weight:800;color:var(--lime)">' + pct(totalDone() / TOTAL_TASKS) + '%</div>' +
+      '<div style="font-size:11px;color:var(--dim2)">总体进度</div></div></div>';
+
+    P.weeks.forEach(function (w) {
+      var days = DAYS.filter(function (d) { return d.w === w.n; });
+      var doneD = days.filter(function (d) { return rec(d.d) && rec(d.d).at; }).length;
+      var ph = P.phases[w.p];
+      h += '<div class="card week' + (w.n === curWeek ? ' open' : '') + '">';
+      h += '<button class="week-head" data-act="week"><span class="wnum" style="color:' + ph.color + ';border-color:' + ph.color + '55">W' + w.n + '</span>' +
+        '<span class="wtxt"><b>' + esc(w.theme) + '</b><small>第 ' + w.range[0] + '–' + w.range[1] + ' 天 · 产出：' + esc(w.output) + '</small></span>' +
+        '<span class="wstat">' + doneD + '/' + days.length + '</span></button>';
+      h += '<div class="week-body"><p class="week-goal">阶段：' + esc(ph.name) + ' —— ' + esc(ph.goal) + '</p><ul class="tasks" style="padding:0;margin:0">';
+      days.forEach(function (d) {
+        var r = rec(d.d);
+        var cls = r && r.at ? 'done' : (doneCount(d.d) > 0 ? 'part' : '');
+        h += '<li><button class="day-row" data-act="day" data-day="' + d.d + '"><span class="dnum">' + pad(d.d) + '</span>' +
+          '<span class="dt">' + esc(d.t) + '</span><span class="dot ' + cls + '"></span></button></li>';
+      });
+      h += '</ul></div></div>';
+    });
+    document.getElementById('view-plan').innerHTML = h;
+  }
+
+  /* ---------------- 资源 ---------------- */
+  var CATS = [['all', '全部'], ['law', '法律'], ['spec', '规范'], ['lab', '靶场'], ['tool', '工具'], ['book', '书'], ['community', '社区']];
+  var resCat = 'all';
+
+  function renderRes() {
+    var h = '<div class="card"><h3>联网搜索（一手资料优先）</h3>' +
+      '<div class="searchrow"><input id="webq" placeholder="例如：Kerberoasting 原理 / PE import table" autocomplete="off">' +
+      '<button class="btn small" data-act="websearch">搜索</button></div>' +
+      '<div class="engines" id="engines"></div>' +
+      '<div class="quick">' +
+      ['MITRE ATT&CK T1059', 'PortSwigger lab SQL injection', 'PE format import table', 'Kerberos TGT TGS explained', 'Ghidra decompiler tutorial']
+        .map(function (t) { return '<button data-act="q" data-q="' + esc(t) + '">' + esc(t) + '</button>'; }).join('') +
+      '</div><p style="color:var(--dim2);font-size:11.5px;margin-top:10px">搜索会跳到站外，建议优先看官方文档与原始规范，而不是二手总结。</p></div>';
+
+    h += '<div class="card"><div class="card-head"><h3>资源库</h3><span id="resCount"></span></div>' +
+      '<input id="resq" placeholder="筛选名称或说明…" autocomplete="off" style="width:100%;padding:11px 13px;border-radius:11px;background:#0a1017;border:1px solid var(--line);outline:none;margin-bottom:10px">' +
+      '<div class="seg" id="resCats">' + CATS.map(function (c) {
+        return '<button data-act="cat" data-cat="' + c[0] + '"' + (resCat === c[0] ? ' class="on"' : '') + '>' + c[1] + '</button>';
+      }).join('') + '</div><div id="resList" style="margin-top:12px"></div></div>';
+
+    var box = document.getElementById('view-res');
+    box.innerHTML = h;
+    renderEngines();
+    renderResList();
+  }
+
+  function renderEngines() {
+    var q = (document.getElementById('webq') || {}).value || '';
+    var qq = encodeURIComponent(q || '网络安全 学习');
+    var list = [
+      ['Bing', 'https://www.bing.com/search?q='],
+      ['Google', 'https://www.google.com/search?q='],
+      ['DuckDuckGo', 'https://duckduckgo.com/?q='],
+      ['百度', 'https://www.baidu.com/s?wd=']
+    ];
+    document.getElementById('engines').innerHTML = list.map(function (e) {
+      return '<a href="' + e[1] + qq + '" target="_blank" rel="noopener">' + e[0] + '</a>';
+    }).join('');
+  }
+
+  function renderResList() {
+    var q = ((document.getElementById('resq') || {}).value || '').toLowerCase().trim();
+    var box = document.getElementById('resList');
+    if (!box) return;
+    var items = R.filter(function (r) {
+      if (resCat !== 'all' && r.c !== resCat) return false;
+      if (!q) return true;
+      return (r.n + ' ' + r.note + ' ' + r.tier).toLowerCase().indexOf(q) >= 0;
+    });
+    document.getElementById('resCount').textContent = items.length + ' 条';
+    box.innerHTML = items.length ? '<div class="res-links">' + items.map(function (r) {
+      return '<a class="res-link" href="' + esc(r.u) + '" target="_blank" rel="noopener">' +
+        '<span class="rname">' + esc(r.n) + '<small>' + esc(r.note) + '</small></span>' +
+        '<span class="rbadge">' + esc(r.tier) + '</span></a>';
+    }).join('') + '</div>' : '<p style="color:var(--dim2);font-size:13px">没有匹配项。</p>';
+  }
+
+  /* ---------------- 自测 ---------------- */
+  var run = null;
+
+  function quizPool(mode) {
+    var week = DAYS[clamp(S.day, 1, 60) - 1].w;
+    var pool = Q.filter(function (x) { return mode !== 'week' || x.w === week; });
+    if (mode === 'random') pool = shuffle(Q).slice(0, 10);
+    if (mode === 'week') pool = shuffle(pool);
+    return pool;
+  }
+  function shuffle(a) {
+    var b = a.slice();
+    for (var i = b.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var t = b[i]; b[i] = b[j]; b[j] = t;
+    }
+    return b;
+  }
+  function quizLog() { return (S.quiz && S.quiz.log) || []; }
+
+  function renderQuizView() {
+    var box = document.getElementById('view-quiz');
+    var best = quizLog().reduce(function (m, x) { return Math.max(m, x.score / x.total); }, 0);
+    var last = quizLog()[quizLog().length - 1];
+
+    if (!run) {
+      box.innerHTML = '<div class="card" style="text-align:center;padding:26px 18px">' +
+        '<div style="font-size:12px;color:var(--dim2);letter-spacing:1px">SELF TEST</div>' +
+        '<h2 style="font-size:24px;margin:8px 0 6px">先测，再学</h2>' +
+        '<p style="color:var(--dim);font-size:13.5px;max-width:420px;margin:0 auto 18px">每周日做一次本周自测；结业前把全部题库刷到 90%。答错会当场给出解析。</p>' +
+        '<div class="data-row" style="justify-content:center">' +
+        '<button class="btn" data-act="quiz-start" data-mode="week">本周自测（第 ' + DAYS[clamp(S.day, 1, 60) - 1].w + ' 周）</button></div>' +
+        '<div class="data-row" style="justify-content:center">' +
+        '<button class="btn ghost" data-act="quiz-start" data-mode="random">随机 10 题</button>' +
+        '<button class="btn ghost" data-act="quiz-start" data-mode="all">全部 ' + Q.length + ' 题</button></div>' +
+        '<p style="color:var(--dim2);font-size:12px;margin-top:14px">历史最好成绩 ' + pct(best) + '%' +
+        (last ? ' · 上次 ' + last.score + '/' + last.total : '') + ' · 已测 ' + quizLog().length + ' 次</p></div>';
+      return;
+    }
+
+    if (run.idx >= run.pool.length) { renderQuizResult(); return; }
+
+    var it = run.pool[run.idx];
+    var h = '<div class="card"><div class="quiz-top"><span class="chip ghost">第 ' + (run.idx + 1) + ' / ' + run.pool.length + '</span>' +
+      '<div class="qbar"><i style="width:' + pct(run.idx / run.pool.length) + '%"></i></div></div>';
+    h += '<p class="qtext">' + esc(it.q) + '</p><div class="opts">';
+    it.o.forEach(function (o, i) {
+      var cls = '';
+      if (run.answered) {
+        if (i === it.a) cls = ' correct';
+        else if (i === run.picked) cls = ' wrong';
+      }
+      h += '<button class="opt' + cls + '" data-act="quiz-opt" data-i="' + i + '"' + (run.answered ? ' disabled' : '') + '>' +
+        '<span class="k">' + 'ABCD'[i] + '</span><span>' + esc(o) + '</span></button>';
+    });
+    h += '</div>';
+    if (run.answered) {
+      h += '<div class="explain">' + (run.picked === it.a ? '✓ 正确。' : '✗ 正确答案是 ' + 'ABCD'[it.a] + '。') + esc(it.e) + '</div>' +
+        '<button class="btn" style="margin-top:14px" data-act="quiz-next">' + (run.idx === run.pool.length - 1 ? '看结果' : '下一题') + '</button>';
+    }
+    h += '</div>';
+    box.innerHTML = h;
+  }
+
+  function renderQuizResult() {
+    var total = run.pool.length, score = run.correct;
+    var p = total ? score / total : 0;
+    var h = '<div class="card"><div class="quiz-result"><div class="big">' + pct(p) + '%</div>' +
+      '<div class="sub">答对 ' + score + ' / ' + total + ' 题 · ' + (p >= 0.9 ? '可以进入下一阶段' : p >= 0.7 ? '基础过关，错题再刷一遍' : '建议回看对应周的任务') + '</div></div>';
+    if (run.wrong.length) {
+      h += '<h3 style="font-size:13px;color:var(--dim);margin:8px 0 10px">错题复盘</h3><ul class="wrong-list">';
+      run.wrong.forEach(function (w) {
+        h += '<li><b>' + esc(w.q) + '</b><span>正确答案：' + esc(w.o[w.a]) + '</span><br>' + esc(w.e) + '</li>';
+      });
+      h += '</ul>';
+    }
+    h += '<div class="data-row" style="margin-top:16px"><button class="btn ghost" data-act="quiz-start" data-mode="' + run.mode + '">再来一次</button>' +
+      '<button class="btn" data-act="quiz-exit">返回</button></div>';
+    h += '</div>';
+    document.getElementById('view-quiz').innerHTML = h;
+    if (!run.logged) {
+      run.logged = true;
+      S.quiz.log.push({ at: todayISO(), mode: run.mode, score: score, total: total });
+      if (S.quiz.log.length > 60) S.quiz.log.shift();
+      save();
+    }
+  }
+
+  /* ---------------- 深造 ---------------- */
+  var RUBRIC = [
+    { id: 'k1', dim: 'web', t: '能独立完成一台 Web 靶机，并写出可复现报告' },
+    { id: 'k2', dim: 'ad', t: '能从普通主机横向到域控，并解释每一步的日志痕迹' },
+    { id: 'k3', dim: 'rev', t: '能读懂 x86-64 汇编，定位关键比较与跳转' },
+    { id: 'k4', dim: 'rev', t: '能独立 triage 一个样本，给出 IOC 与家族判断' },
+    { id: 'k5', dim: 'rep', t: '能把漏洞翻译成开发能执行的修复建议' },
+    { id: 'k6', dim: 'ops', t: '有可复现的实验环境与结构化笔记体系' },
+    { id: 'k7', dim: 'ops', t: '能在 4 小时内稳定完成一台 medium 靶机' },
+    { id: 'k8', dim: 'rep', t: '有公开作品集，并接受过同行批评' }
+  ];
+  var DIRS = [
+    { key: 'web', h: '应用安全 / 漏洞研究', p: '从业务逻辑、源码、框架里找洞，把漏洞变成可复现的 PoC 与修复方案。', m: '补 JS 框架、源码审计、SAST；12 个月目标：审计 3 个开源项目 + 1 个 CVE + BSCP/OSWE。', tag: '市场大' },
+    { key: 'ad', h: '内网与 AD 红队', p: '在域环境里做系统性推理，用凭证与配置缺陷走完成条攻击链。', m: '补 AD 深度、C2 原理、OPSEC 与 EDR 对抗；12 个月目标：CRTP → CRTO，自建 GOAD 打穿 3 次。', tag: '最贴 SME' },
+    { key: 'rev', h: '恶意代码分析 / 逆向', p: '读二进制、还原行为、写检测规则，回答这个样本做了什么。', m: '补 C/C++、Windows 内核、ARM、脱壳；12 个月目标：100 个样本 triage + 10 篇报告 + OSED。', tag: '稀缺' },
+    { key: 'blue', h: '检测工程（蓝队）', p: '把攻击翻译成日志与规则，用数据证明攻击是否可见。', m: '补日志体系、SIEM、Sigma/YARA、威胁狩猎；12 个月目标：50 条 Sigma + 3 次紫队演练。', tag: '需求稳定' },
+    { key: 'cloud', h: '云安全', p: 'IAM、容器、CI/CD 与元数据，是 SME 上云后最大的新暴露面。', m: '补 AWS/Azure IAM、K8s、容器逃逸；12 个月目标：云靶场通关 + 2 个配置审计工具。', tag: '增长快' },
+    { key: 'pwn', h: '漏洞利用开发', p: '从 crash 到可控执行，研究缓解机制怎么被绕过。', m: '补 C、汇编、堆布局、fuzzing；12 个月目标：复现 10 个 CVE + 1 个原创 crash。', tag: '门槛高' },
+    { key: 'deliver', h: '安全交付 / 咨询', p: '把技术结论变成客户能决策的报告、预算与整改路线。', m: '补等保、ISO 27001、风险评估、项目管理；12 个月目标：10 份报告 + 参与 1 次等保项目。', tag: '越老越值钱' }
+  ];
+
+  function labScore() {
+    var s = 0;
+    RUBRIC.forEach(function (r) { s += (S.rubric[r.id] || 0); });
+    return s;
+  }
+  function dims() {
+    var v = {};
+    RUBRIC.forEach(function (r) {
+      var x = S.rubric[r.id] || 0;
+      v[r.dim] = (v[r.dim] || 0) + x;
+    });
+    return v;
+  }
+
+  function renderLab() {
+    var score = labScore();
+    var lv = score < 6 ? '未达基线' : score < 10 ? '接近基线' : score < 14 ? '达到基线' : '超出基线';
+    var dv = dims();
+    var order = Object.keys(dv).sort(function (a, b) { return dv[b] - dv[a]; });
+    var top = order.length && dv[order[0]] > 0 ? order[0] : null;
+    var mapDim = { web: 'web', ad: 'ad', rev: 'rev', rep: 'deliver', ops: 'blue' };
+    var recoKey = top ? mapDim[top] : null;
+
+    var h = '';
+    h += '<div class="card"><h3>能力自评（0 = 不会，1 = 能照做，2 = 能独立做并讲清）</h3>' +
+      '<div class="score-box"><span class="n">' + score + '</span><span class="lv">/ 16 · ' + lv + '</span></div>' +
+      RUBRIC.map(function (r) {
+        var v = S.rubric[r.id] || 0;
+        return '<div class="rubric-item"><p>' + esc(r.t) + '</p><div class="seg">' +
+          [0, 1, 2].map(function (n) {
+            return '<button data-act="rub" data-id="' + r.id + '" data-v="' + n + '"' + (v === n ? ' class="on"' : '') + '>' + n + '</button>';
+          }).join('') + '</div></div>';
+      }).join('') + '</div>';
+
+    h += '<div class="card"><div class="card-head"><h3>深造方向</h3><span>' + (recoKey ? '按自评推荐已高亮' : '先做上面的自评') + '</span></div>' +
+      DIRS.map(function (d) {
+        return '<div class="dir' + (d.key === recoKey ? ' reco' : '') + '"><h4>' + esc(d.h) +
+          (d.key === recoKey ? '<span class="tag">建议主攻</span>' : '') + '<span class="tag" style="color:var(--dim2);border-color:var(--line2)">' + esc(d.tag) + '</span></h4>' +
+          '<p>' + esc(d.p) + '</p><div class="meta">' + esc(d.m) + '</div></div>';
+      }).join('') +
+      '<p style="color:var(--dim2);font-size:12px;margin-top:6px">选 1 个主攻 + 1 个辅助。主攻决定你未来 2 年的深度，辅助保证你不被单点淘汰。</p></div>';
+
+    h += '<div class="card"><h3>证书路线（价格与考纲以官网为准）</h3><div class="res-links">' +
+      [['eJPT', '入门实操，验证完整链路，适合现在'], ['PNPT / OSCP', '实战渗透，报告与 AD 占比高，6–12 个月后'], ['CRTP / CRTO', 'AD 攻击与红队运营，12–18 个月'], ['OSED / OSWE', '逆向与漏洞开发，18–24 个月']]
+        .map(function (c) { return '<div class="res-link" style="cursor:default"><span class="rname">' + esc(c[0]) + '<small>' + esc(c[1]) + '</small></span><span class="rbadge">路线</span></div>'; }).join('') +
+      '</div></div>';
+
+    h += '<div class="card"><h3>结业后 90 天（建议）</h3><p style="font-size:13.5px;color:var(--dim);line-height:1.7">' +
+      '① 选一个方向做深：每周 1 个真实目标（靶场/开源项目/样本）。<br>' +
+      '② 保持输出：每两周 1 篇 writeup 或 1 条检测规则。<br>' +
+      '③ 建立反馈：找 1 个同伴互评报告，或把 writeup 发到社区。<br>' +
+      '④ 考第一个证书：eJPT 或 PNPT，用考试逼自己补流程。</p></div>';
+
+    document.getElementById('view-lab').innerHTML = h;
+  }
+
+  /* ---------------- 数据 ---------------- */
+  function renderData() {
+    var h = '<div class="card"><h3>数据与备份</h3>' +
+      '<p style="color:var(--dim);font-size:13px;margin-bottom:12px">所有记录只存在这台设备的浏览器里，不会上传。换设备请用导出/导入。</p>' +
+      '<div class="data-row"><button class="btn ghost" data-act="export">导出 JSON</button><button class="btn ghost" data-act="import">导入 JSON</button></div>' +
+      '<div class="data-row"><button class="btn ghost" data-act="print">打印当前页</button><button class="btn danger" data-act="reset">清空全部记录</button></div>' +
+      '<input type="file" id="fileInput" accept="application/json,.json" class="hidden"></div>';
+
+    h += '<div class="card"><h3>安装到手机（推荐）</h3>' +
+      '<p style="color:var(--dim);font-size:13px;line-height:1.75">iPhone：Safari 打开 → 分享 → 添加到主屏幕。<br>Android：Chrome 打开 → 菜单 → 安装应用 / 添加到主屏幕。<br>安装后可离线打开，打卡记录保存在本机。</p>' +
+      '<button class="btn ghost" style="margin-top:12px" data-act="install" id="installBtn">安装到此设备</button></div>';
+
+    h += '<div class="card"><h3>关于成绩的第三方证明</h3>' +
+      '<p style="color:var(--dim);font-size:13px;line-height:1.8">自评不算数。能证明你的只有：靶场判分（HTB/THM/PortSwigger 实验完成记录）、CTFtime 排名、公开 writeup 被引用、证书、以及蓝队检测是否命中你的攻击。</p></div>';
+
+    h += '<div class="card"><h3>使用边界</h3>' +
+      '<p style="color:var(--dim);font-size:13px;line-height:1.8">本程序只提供学习路线。所有技术练习必须在自有虚拟机或明确授权的平台内进行。未经授权对他人系统进行扫描、入侵、数据获取，在中国境内可能触犯《网络安全法》与《刑法》第二百八十五、二百八十六条。</p></div>';
+
+    h += '<p class="foot">Attack60 v' + esc(P.meta.version) + ' · ' + TOTAL_TASKS + ' 个任务 · 数据存于本机 localStorage<br>建议每周导出一次备份</p>';
+    document.getElementById('view-data').innerHTML = h;
+  }
+
+  /* ---------------- 搜索 ---------------- */
+  var IDX = [];
+  DAYS.forEach(function (d) {
+    IDX.push({ type: 'day', d: d.d, s: '第' + d.d + '天 ' + d.t + ' ' + d.f + ' ' + d.k.join(' ') + ' 第' + d.w + '周', label: '第 ' + d.d + ' 天 · ' + d.t });
+  });
+  R.forEach(function (r) {
+    IDX.push({ type: 'res', url: r.u, s: r.n + ' ' + r.note + ' ' + r.tier, label: r.n, sub: r.note });
+  });
+
+  function doSearch(q) {
+    var box = document.getElementById('searchResults');
+    q = q.trim().toLowerCase();
+    if (!q) { box.innerHTML = ''; return; }
+    var hits = IDX.filter(function (x) { return x.s.toLowerCase().indexOf(q) >= 0; }).slice(0, 18);
+    if (!hits.length) { box.innerHTML = '<p style="color:var(--dim2);font-size:13px;padding:8px 4px">没有结果，试试英文关键词。</p>'; return; }
+    box.innerHTML = hits.map(function (x) {
+      if (x.type === 'day') {
+        return '<button class="sr-item" data-act="goto-day" data-day="' + x.d + '"><b>' + esc(x.label) + '</b><small>跳到该天任务</small></button>';
+      }
+      return '<a class="sr-item" href="' + esc(x.url) + '" target="_blank" rel="noopener"><b>' + esc(x.label) + '</b><small>' + esc(x.sub) + '</small></a>';
+    }).join('');
+  }
+
+  /* ---------------- 事件 ---------------- */
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest('[data-act], .tab, .week-head');
+    if (!t) return;
+
+    if (t.classList.contains('tab')) { go(t.dataset.view); return; }
+    if (t.classList.contains('week-head') && t.dataset.act === 'week') {
+      var wk = t.closest('.week');
+      if (wk) wk.classList.toggle('open');
+      return;
+    }
+
+    var act = t.dataset.act;
+    var d = clamp(S.day, 1, 60);
+
+    if (act === 'toggle') {
+      var i = +t.dataset.i;
+      var r = ensure(d);
+      var k = r.done.indexOf(i);
+      if (k >= 0) r.done.splice(k, 1); else r.done.push(i);
+      save();
+      var li = t.closest('.task');
+      if (li) li.classList.toggle('done', r.done.indexOf(i) >= 0);
+      updateTodayMeta(d);
+      return;
+    }
+    if (act === 'checkin') {
+      var r2 = ensure(d);
+      var mi = document.getElementById('mins');
+      r2.at = todayISO();
+      r2.min = mi ? (+mi.value || 0) : 180;
+      save();
+      document.getElementById('checkinBox').innerHTML = checkinHTML(d);
+      var heat = document.getElementById('heat');
+      if (heat) heat.innerHTML = heatHTML();
+      updateTodayMeta(d);
+      toast('第 ' + d + ' 天打卡完成' + (r2.done.length < DAYS[d - 1].k.length ? '（仍有未勾选任务）' : ''));
+      return;
+    }
+    if (act === 'undo') {
+      var r3 = ensure(d);
+      r3.at = null;
+      save();
+      document.getElementById('checkinBox').innerHTML = checkinHTML(d);
+      var heat2 = document.getElementById('heat');
+      if (heat2) heat2.innerHTML = heatHTML();
+      updateTodayMeta(d);
+      toast('已撤销打卡');
+      return;
+    }
+    if (act === 'prev' || act === 'next') {
+      go('today', d + (act === 'next' ? 1 : -1));
+      return;
+    }
+    if (act === 'jump') { go('today', currentDay()); return; }
+    if (act === 'day') { go('today', +t.dataset.day); return; }
+
+    if (act === 'cat') { resCat = t.dataset.cat; renderRes(); return; }
+    if (act === 'websearch') {
+      var wq = (document.getElementById('webq') || {}).value || '';
+      if (!wq.trim()) { toast('先输入关键词'); return; }
+      window.open('https://www.bing.com/search?q=' + encodeURIComponent(wq), '_blank', 'noopener');
+      return;
+    }
+    if (act === 'q') {
+      var qv = t.dataset.q;
+      var inp = document.getElementById('webq');
+      if (inp) inp.value = qv;
+      renderEngines();
+      window.open('https://www.bing.com/search?q=' + encodeURIComponent(qv), '_blank', 'noopener');
+      return;
+    }
+
+    if (act === 'quiz-start') {
+      run = { pool: quizPool(t.dataset.mode), idx: 0, correct: 0, wrong: [], picked: -1, answered: false, mode: t.dataset.mode, logged: false };
+      if (!run.pool.length) { run = null; toast('该范围暂无题目'); }
+      renderQuizView();
+      return;
+    }
+    if (act === 'quiz-opt' && run && !run.answered) {
+      var pick = +t.dataset.i;
+      var item = run.pool[run.idx];
+      run.picked = pick;
+      run.answered = true;
+      if (pick === item.a) run.correct++;
+      else run.wrong.push(item);
+      renderQuizView();
+      return;
+    }
+    if (act === 'quiz-next' && run) {
+      run.idx++;
+      run.answered = false;
+      run.picked = -1;
+      renderQuizView();
+      return;
+    }
+    if (act === 'quiz-exit') { run = null; renderQuizView(); return; }
+
+    if (act === 'rub') {
+      S.rubric[t.dataset.id] = +t.dataset.v;
+      save();
+      renderLab();
+      return;
+    }
+
+    if (act === 'export') { exportJSON(); return; }
+    if (act === 'import') { document.getElementById('fileInput').click(); return; }
+    if (act === 'print') { window.print(); return; }
+    if (act === 'reset') {
+      if (confirm('确定清空全部打卡与自测记录？此操作不可恢复，建议先导出备份。')) {
+        localStorage.removeItem(KEY);
+        S = defaultState();
+        S.day = 1;
+        render();
+        toast('已清空');
+      }
+      return;
+    }
+    if (act === 'install') {
+      if (window.__deferredPrompt) {
+        window.__deferredPrompt.prompt();
+        window.__deferredPrompt = null;
+      } else {
+        toast('请用浏览器菜单里的「添加到主屏幕 / 安装应用」');
+      }
+      return;
+    }
+    if (act === 'goto-day') {
+      document.getElementById('searchBar').classList.add('hidden');
+      go('today', +t.dataset.day);
+      return;
+    }
+  });
+
+  document.addEventListener('input', function (e) {
+    if (e.target.id === 'noteInput') {
+      var r = ensure(clamp(S.day, 1, 60));
+      r.note = e.target.value;
+      clearTimeout(window.__noteT);
+      window.__noteT = setTimeout(function () {
+        save();
+        var st = document.getElementById('noteStatus');
+        if (st) { st.textContent = '已保存'; setTimeout(function () { if (st) st.textContent = '自动保存'; }, 1200); }
+      }, 400);
+      return;
+    }
+    if (e.target.id === 'searchInput') { doSearch(e.target.value); return; }
+    if (e.target.id === 'resq') { renderResList(); return; }
+    if (e.target.id === 'webq') { renderEngines(); return; }
+  });
+
+  document.addEventListener('change', function (e) {
+    if (e.target.id === 'fileInput') {
+      var f = e.target.files && e.target.files[0];
+      if (!f) return;
+      var fr = new FileReader();
+      fr.onload = function () {
+        try {
+          var data = JSON.parse(fr.result);
+          if (!data || data.v !== 1) throw new Error('格式不符');
+          S = data;
+          S.days = S.days || {};
+          S.quiz = S.quiz || { log: [] };
+          S.rubric = S.rubric || {};
+          save();
+          render();
+          toast('导入成功');
+        } catch (err) { toast('导入失败：文件不是有效的备份'); }
+      };
+      fr.readAsText(f);
+      e.target.value = '';
+    }
+  });
+
+  document.getElementById('searchToggle').addEventListener('click', function () {
+    var bar = document.getElementById('searchBar');
+    bar.classList.toggle('hidden');
+    if (!bar.classList.contains('hidden')) document.getElementById('searchInput').focus();
+  });
+  document.getElementById('dataToggle').addEventListener('click', function () {
+    go(S.view === 'data' ? 'today' : 'data');
+  });
+
+  /* ---------------- 导出 ---------------- */
+  function exportJSON() {
+    var blob = new Blob([JSON.stringify(S, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'attack60-备份-' + todayISO() + '.json';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    toast('已导出备份');
+  }
+
+  /* ---------------- 启动 ---------------- */
+  if (!S.days[S.day] || !S.days[S.day].at) {
+    /* 保持用户当前所在天 */
+  } else {
+    var cur = currentDay();
+    if (cur !== S.day && !(S.days[cur] && S.days[cur].at)) S.day = cur;
+  }
+  save();
+  render();
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    window.__deferredPrompt = e;
+  });
+
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('./sw.js').catch(function () { /* file:// 或 http 下失败都无所谓 */ });
+    });
+  }
+})();
+
+</script>
+</body>
+</html>
